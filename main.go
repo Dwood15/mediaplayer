@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
-	_ = songs.GetLibrary()
+	l := songs.GetLibrary()
 
+	l.Play()
+	l.Play()
 	songs.PersistLibCache()
 
 	fmt.Println("playing complete")

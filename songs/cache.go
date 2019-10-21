@@ -14,10 +14,8 @@ const cacheName = "songlib.cache"
 func init() {
 	fp, err := os.OpenFile(cacheName, os.O_CREATE&os.O_RDWR, 0666)
 	if err == nil {
-		err = c.Load(fp)
-		if err != nil {
-			panic(err)
-		}
+		_ = c.Load(fp)
+		return
 	}
 
 	if os.IsNotExist(err) {
