@@ -14,10 +14,12 @@ type (
 	LibInfo struct {
 		AvgPlays    float64
 		AvgSkips    float64
+		AvgScore    float64
 		LastCompute time.Time
 
-		NumSkips uint64
+		NumSkips   uint64
 		NumPlays   uint64
+		TotalScore float64
 		TimePlayed time.Duration
 	}
 
@@ -125,9 +127,12 @@ func (lib *SongLibrary) computeScores() {
 	lib.AvgPlays = float64(lib.NumPlays) / float64(len(lib.Songs))
 	lib.AvgSkips = float64(lib.NumSkips) / float64(len(lib.Songs))
 
+	lib.TotalScore = 0
 	for _, song := range lib.Songs {
 		song.computeScore()
+		lib.TotalScore += song.Score
 	}
+	lib.AvgScore = lib.TotalScore / float64(len(lib.Songs))
 
 	lib.LastCompute = time.Now()
 
