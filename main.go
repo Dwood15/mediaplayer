@@ -10,6 +10,5 @@ func main() {
 
 	songs.PersistLibCache()
 
-
 	fmt.Println("playing complete")
 }
