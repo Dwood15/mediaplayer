@@ -110,9 +110,9 @@ func (pI *PlayInfo) computePlayScore() {
 		pI.Score += 15 * float64(pI.ComputesSincePlay)
 	}
 
-	//We've just played the song, so we're going to
-	if pI.LastPlayed.After(lib.LastCompute) && pI.Score > lib.Av {
-		pI.Score = 0
+	//We've just played the song, so we're going to drop its score somewhat.
+	if pI.LastPlayed.After(lib.LastCompute) && pI.Score > lib.AvgScore {
+		pI.Score -= (pI.Score - lib.AvgScore) / 2
 	}
 }
 

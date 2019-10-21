@@ -130,8 +130,12 @@ func (lib *SongLibrary) computeScores() {
 	lib.TotalScore = 0
 	for _, song := range lib.Songs {
 		song.computeScore()
-		lib.TotalScore += song.Score
+		// we only care about the scores of songs that are positive.
+		if song.Score > 0 {
+			lib.TotalScore += song.Score
+		}
 	}
+
 	lib.AvgScore = lib.TotalScore / float64(len(lib.Songs))
 
 	lib.LastCompute = time.Now()
