@@ -86,7 +86,7 @@ func getSongs(dir string) {
 		if strings.HasSuffix(nam, ".mp3") {
 			song := SongFile{FileName: dir + "/" + nam}
 			if err := song.loadPlayTime(); err != nil {
-				fmt.Println("error loading mp3 file: ", err.Error())
+				//fmt.Println("error loading mp3 file: ", err.Error())
 				continue
 			}
 

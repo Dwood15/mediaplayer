@@ -23,9 +23,13 @@ func main() {
 
 	l := songs.GetLibrary()
 
+	songs.PersistLibCache()
+
 	fmt.Printf("Loaded library in: %v\n", time.Since(start))
 
 	l.Play()
+
+	songs.PersistLibCache()
 
 	fmt.Printf("Total song time loaded: %v\n", l.TotalTime)
 
