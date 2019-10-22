@@ -143,9 +143,7 @@ func (lib *SongLibrary) computeScores() {
 	//O(n) loop
 	for i := 0; i < len(lib.Songs); i++ {
 		if lib.Songs[i].PlayTime == 0 {
-			if err := lib.Songs[i].loadPlayTime(); err != nil {
-				panic(err)
-			}
+			panic(fmt.Errorf("when computing scores, a song: %s was fount to have no PlayTime", lib.Songs[i].FileName))
 		}
 
 		lib.NumPlays += lib.Songs[i].TotalPlays
