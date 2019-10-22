@@ -3,3 +3,4 @@ vendor/
 data/
 *.cache
 mediaplayer
+config.json

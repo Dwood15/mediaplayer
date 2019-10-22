@@ -12,11 +12,11 @@ I have a media library >80GB, and no media player provides adequate shuffle for 
 
 ## Status
 
-- Play functionality for mp3's is built.
-- Basic rating system is built.
-- Basic skipping is built
-- Loads mp3's within ./data/ folder,
+- Play functionality for mp3's is built. (automatically plays the first song)
+- Basic rating system is built. 
+- Loads mp3's within the `music_dir`, specified in config.json
 - Plays a 'playlist' of songs, saves lib to cache, then exits.
+- Basic skipping is 'built' (not implemented)
 
 ## Goals
 
@@ -28,3 +28,15 @@ I have a media library >80GB, and no media player provides adequate shuffle for 
 ## Usage
 
 - EXPECT BUGS 
+- Ensure you have a music folder in your user directory, and if not, create a config.json in the project directory:
+```json
+{
+  "music_dir": "Full/Path/To/Your/Music/Dir"
+}
+```
+- When the application is built and ran, it will consume as much of your system resources as it can, in order to chew through your music folder ASAP.
+ Running on my (very fast, very powerful) machine took 3m 28.5s
+ 
+- Due to the limitations of the libraries beep depends on,  only select kinds of MP3 files are supported.
+
+- To build and run (linux): `go build && ./mediaplayer`

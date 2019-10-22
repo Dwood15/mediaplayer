@@ -1,7 +1,6 @@
 package songs
 
 import (
-	"fmt"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
@@ -28,7 +27,7 @@ type (
 	}
 )
 
-func (sF *SongFile) loadPlayTime() {
+func (sF *SongFile) loadPlayTime() error {
 	f, err := os.Open(sF.FileName)
 	if err != nil {
 		panic(err)
@@ -36,13 +35,13 @@ func (sF *SongFile) loadPlayTime() {
 
 	streamer, format, err := mp3.Decode(f)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer streamer.Close()
 
 	sF.PlayTime = format.SampleRate.D(streamer.Len())
 
-	fmt.Printf("playtime calculated: %v\n", sF.PlayTime)
+	return nil
 }
 
 func (sF *SongFile) Play() {
@@ -73,10 +72,10 @@ func (sF *SongFile) Play() {
 			lib.TimePlayed += time.Since(playStart)
 			mu.Unlock()
 			return
-		//case <-time.After(time.Second):
-		//	speaker.Lock()
-		//	fmt.Println(format.SampleRate.D(streamer.Position()).Round(time.Second))
-		//	speaker.Unlock()
+			//case <-time.After(time.Second):
+			//	speaker.Lock()
+			//	fmt.Println(format.SampleRate.D(streamer.Position()).Round(time.Second))
+			//	speaker.Unlock()
 		}
 	}
 }

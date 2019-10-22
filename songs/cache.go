@@ -58,9 +58,5 @@ func GetLibrary() *SongLibrary {
 		fmt.Println("loaded and persisted lib from cache")
 	}
 
-	if !lib.Pruned {
-		lib.prune()
-	}
-
 	return lib
 }

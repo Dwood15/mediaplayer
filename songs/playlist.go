@@ -19,7 +19,6 @@ func (p *Playlist) NextSong() bool {
 	numSongs := len(p.SongsToPlay)
 	fmt.Printf("nextSong begins. num to play: %v ", numSongs)
 
-	
 	if p.nextSong >= numSongs {
 		fmt.Println("end of playlist, time to calculate next song.")
 		return true
