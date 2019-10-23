@@ -75,7 +75,7 @@ func getSongs(dir string) {
 	defer lib.lbWg.Done()
 
 	//sleep the goroutine anywhere between 0 and 2 seconds :thonk:
-	time.Sleep(time.Duration(rand.Int63n(int64(15 * time.Second))) + time.Second)
+	time.Sleep(time.Duration(rand.Int63n(int64(7 * time.Second))) + 750 * time.Millisecond)
 
 	f, err := os.OpenFile(dir, os.O_RDONLY, os.ModeDir)
 	if err != nil {
