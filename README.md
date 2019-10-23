@@ -31,7 +31,8 @@ I have a media library >80GB, and no media player provides adequate shuffle for 
 - Ensure you have a music folder in your user directory, and if not, create a config.json in the project directory:
 ```json
 {
-  "music_dir": "Full/Path/To/Your/Music/Dir"
+  "music_dir": "Full/Path/To/Your/Music/Dir",
+  "max_playlist_size": 25
 }
 ```
 - When the application is built and ran, it will consume as much of your system resources as it can, in order to chew through your music folder ASAP.
