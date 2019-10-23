@@ -25,7 +25,7 @@ type (
 		AvgPlays    float64   `json:"avg_plays,omitempty"`
 		AvgSkips    float64   `json:"avg_skips,omitempty"`
 		AvgScore    float64   `json:"avg_score,omitempty"`
-		LastCompute time.Time `json:"last_compute_time,omitempty"`
+		LastCompute int64 `json:"last_compute_time,omitempty"`
 
 		NumSkips   uint64        `json:"total_skips,omitempty"`
 		NumPlays   uint64        `json:"total_plays,omitempty"`
@@ -216,7 +216,7 @@ func (lib *SongLibrary) computeScores() {
 	lib.AvgSkips = float64(lib.NumSkips) / float64(len(lib.Songs))
 	lib.AvgScore = lib.TotalScore / float64(len(lib.Songs))
 
-	lib.LastCompute = time.Now()
+	lib.LastCompute = time.Now().Unix()
 
 	//O(n*log(n))
 	sort.Sort(sort.Reverse(byScore(lib.Songs)))

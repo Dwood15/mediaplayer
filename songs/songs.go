@@ -12,13 +12,13 @@ import (
 
 type (
 	PlayInfo struct {
-		Score             float64   `json:"score,omitempty"`
-		TotalSkips        uint64    `json:"total_skips,omitempty"`
-		ConsecutiveSkips  float64   `json:"consecutive_skips,omitempty"`
-		LastSkipped       time.Time `json:"last_skipped_time,omitempty"`
-		LastPlayed        time.Time `json:"last_played_time,omitempty"`
-		TotalPlays        uint64    `json:"total_plays,omitempty"`
-		ComputesSincePlay uint8     `json:"computes_since_last_play,omitempty"`
+		Score             float64 `json:"score,omitempty"`
+		TotalSkips        uint64  `json:"total_skips,omitempty"`
+		ConsecutiveSkips  float64 `json:"consecutive_skips,omitempty"`
+		LastSkipped       int64   `json:"last_skipped_time,omitempty"`
+		LastPlayed        int64   `json:"last_played_time,omitempty"`
+		TotalPlays        uint64  `json:"total_plays,omitempty"`
+		ComputesSincePlay uint8   `json:"computes_since_last_play,omitempty"`
 	}
 	SongFile struct {
 		FileName string        `json:"file_name,omitempty"`
@@ -68,6 +68,7 @@ func (sF *SongFile) Play() {
 		case <-done:
 			mu.Lock()
 			sF.TotalPlays++
+			sF.LastPlayed = time.Now().Unix()
 			lib.NumPlays++
 			lib.TimePlayed += time.Since(playStart)
 			mu.Unlock()
@@ -82,7 +83,7 @@ func (sF *SongFile) Play() {
 
 func (pI *PlayInfo) computeSkipScore() bool {
 	//Compute the lastSkipped scores
-	if pI.LastSkipped.After(lib.LastCompute) {
+	if pI.LastSkipped > lib.LastCompute {
 		pI.Score -= 15 * (1 + pI.ConsecutiveSkips)
 
 		if pI.TotalSkips > uint64(math.Floor(lib.AvgSkips)) {
@@ -94,7 +95,7 @@ func (pI *PlayInfo) computeSkipScore() bool {
 		return false
 	}
 
-	if pI.LastSkipped.Before(pI.LastPlayed) {
+	if pI.LastSkipped > pI.LastPlayed {
 		pI.ConsecutiveSkips = 0
 	}
 
@@ -104,13 +105,13 @@ func (pI *PlayInfo) computeSkipScore() bool {
 }
 
 func (pI *PlayInfo) computePlayScore() {
-	if pI.LastPlayed.Before(lib.LastCompute) {
+	if pI.LastPlayed < lib.LastCompute {
 		pI.ComputesSincePlay++
 		pI.Score += 15 * float64(pI.ComputesSincePlay)
 	}
 
 	//We've just played the song, so we're going to drop its score somewhat.
-	if pI.LastPlayed.After(lib.LastCompute) && pI.Score > lib.AvgScore {
+	if pI.LastPlayed > lib.LastCompute && pI.Score > lib.AvgScore {
 		pI.Score -= (pI.Score - lib.AvgScore) / 2
 	}
 }
