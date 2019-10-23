@@ -6,6 +6,7 @@ import (
 	"github.com/dwood15/mediaplayer/songs"
 	"io/ioutil"
 	"os"
+	"syscall"
 	"time"
 )
 
@@ -14,6 +15,20 @@ type Config struct {
 }
 
 func init() {
+	prio, err := syscall.Getpriority(syscall.PRIO_PROCESS, 0x0)
+
+	if err != nil {
+		panic("err getting priority")
+	}
+
+	fmt.Printf("detected priority: %d", prio)
+
+	fmt.Println("priority too high, might crowd out other processes")
+	err = syscall.Setpriority(syscall.PRIO_PROCESS, 0x0, 19)
+	if err != nil {
+		panic("failed setting process priority")
+	}
+
 	loadConfig()
 	songs.SetLibraryDir(cfg.MusicDir)
 }
