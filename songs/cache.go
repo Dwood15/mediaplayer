@@ -32,6 +32,11 @@ func PersistLibCache() {
 func GetLibrary() *SongLibrary {
 	fmt.Println("Retrieving playlist library")
 
+	defer func() {
+		lib.computeScores()
+		lib.computePlaylist()
+	}()
+
 	if lib != nil {
 		return lib
 	}

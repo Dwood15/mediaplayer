@@ -34,6 +34,17 @@ type (
 )
 
 var libDir = ""
+var maxSize int
+var mu sync.RWMutex
+
+func SetPlaylistMaxSize(max int) {
+	if max == 0 {
+		max = 25
+		fmt.Println("defaulting the max playlist selection to 25")
+	}
+
+	maxSize = max
+}
 
 func SetLibraryDir(dir string) {
 	if len(dir) == 0 {
@@ -43,15 +54,11 @@ func SetLibraryDir(dir string) {
 	libDir = dir
 }
 
-var mu sync.RWMutex
-
-//SetMaxPlaylistSize indicates to the library what the maximum size of the playlist should be.
-//This also has the side-effect of changing how often recomputes occur.
-func (lib *SongLibrary) SetMaxPlaylistSize(max int) {
-	lib.ToPlay.maxSize = max
-}
-
 func (lib *SongLibrary) Play() {
+	if len(lib.ToPlay.SongsToPlay) == 0 {
+		panic("missing playlist of songs")
+	}
+
 	if lib.ToPlay.NextSong() {
 		lib.computeScores()
 		lib.computePlaylist()
@@ -75,7 +82,7 @@ func getSongs(dir string) {
 	defer lib.lbWg.Done()
 
 	//sleep the goroutine anywhere between 0 and 2 seconds :thonk:
-	time.Sleep(time.Duration(rand.Int63n(int64(7 * time.Second))) + 750 * time.Millisecond)
+	time.Sleep(time.Duration(rand.Int63n(int64(2 * time.Second))))
 
 	f, err := os.OpenFile(dir, os.O_RDONLY, os.ModeDir)
 	if err != nil {
@@ -154,7 +161,16 @@ func (lib *SongLibrary) prune() {
 func (lib *SongLibrary) computePlaylist() {
 	fmt.Println("computing playlist now")
 
-	lib.ToPlay.SongsToPlay = lib.Songs[:lib.ToPlay.maxSize]
+	if maxSize == 0 {
+		panic("no maxSize specified")
+	}
+
+	if n := len(lib.Songs); maxSize > n {
+		fmt.Println("max size reduced to match the number of songs")
+		maxSize = n
+	}
+
+	lib.ToPlay.SongsToPlay = lib.Songs[:maxSize]
 
 	lib.ToPlay.nextSong = 0
 	fmt.Println("playlist computed")

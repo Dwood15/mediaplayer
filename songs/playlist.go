@@ -9,20 +9,23 @@ type (
 	Playlist struct {
 		nextSong    int
 		SongsToPlay []SongFile
-		maxSize     int
 	}
 )
 
 func (p *Playlist) NextSong() bool {
 	numSongs := len(p.SongsToPlay)
 
-	if p.maxSize > numSongs {
-		p.maxSize = numSongs
-	} else if p.maxSize == 0 {
-		p.maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
+	if numSongs == 0 {
+		panic("can't play songs with empty playlist")
 	}
 
-	if p.nextSong >= p.maxSize {
+	if maxSize > numSongs {
+		maxSize = numSongs
+	} else if maxSize == 0 {
+		maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
+	}
+
+	if p.nextSong >= maxSize {
 		fmt.Println("end of playlist, time to calculate next song.")
 		return true
 	}

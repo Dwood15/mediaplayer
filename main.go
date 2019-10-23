@@ -14,6 +14,7 @@ import (
 
 type Config struct {
 	MusicDir string `json:"music_dir"` //MusicDir is the directory where the
+	MaxPlaylistSize int `json:"max_playlist_size"`
 }
 
 func handleShutdown() {
@@ -29,7 +30,7 @@ func handleShutdown() {
 }
 
 func init() {
-	runtime.GOMAXPROCS(4)
+	runtime.GOMAXPROCS(2)
 
 	prio, err := syscall.Getpriority(syscall.PRIO_PROCESS, 0x0)
 
@@ -47,6 +48,7 @@ func init() {
 
 	loadConfig()
 	songs.SetLibraryDir(cfg.MusicDir)
+	songs.SetPlaylistMaxSize(cfg.MaxPlaylistSize)
 }
 
 func main() {
