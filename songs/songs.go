@@ -12,18 +12,18 @@ import (
 
 type (
 	PlayInfo struct {
-		Score             float64
-		TotalSkips        uint64
-		ConsecutiveSkips  float64
-		LastSkipped       time.Time
-		LastPlayed        time.Time
-		TotalPlays        uint64
-		ComputesSincePlay uint8
+		Score             float64   `json:"omitempty"`
+		TotalSkips        uint64    `json:"omitempty"`
+		ConsecutiveSkips  float64   `json:"omitempty"`
+		LastSkipped       time.Time `json:"omitempty"`
+		LastPlayed        time.Time `json:"omitempty"`
+		TotalPlays        uint64    `json:"omitempty"`
+		ComputesSincePlay uint8     `json:"omitempty"`
 	}
 	SongFile struct {
 		FileName string
+		PlayTime time.Duration `json:"omitempty"`
 		PlayInfo
-		PlayTime time.Duration
 	}
 )
 

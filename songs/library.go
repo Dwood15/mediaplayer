@@ -11,25 +11,25 @@ import (
 )
 
 type (
-	LibInfo struct {
-		AvgPlays    float64
-		AvgSkips    float64
-		AvgScore    float64
-		LastCompute time.Time
-
-		NumSkips   uint64
-		NumPlays   uint64
-		TotalScore float64
-		TimePlayed time.Duration
-	}
-
 	SongLibrary struct {
-		Songs []SongFile
-		LibInfo
-		TotalTime time.Duration
+		Songs     []SongFile    `json:"omitempty"`
+		TotalTime time.Duration `json:"omitempty"`
 		Pruned    bool
 		ToPlay    Playlist
 		lbWg      sync.WaitGroup
+		LibInfo
+	}
+
+	LibInfo struct {
+		AvgPlays    float64   `json:"omitempty"`
+		AvgSkips    float64   `json:"omitempty"`
+		AvgScore    float64   `json:"omitempty"`
+		LastCompute time.Time `json:"omitempty"`
+
+		NumSkips   uint64        `json:"omitempty"`
+		NumPlays   uint64        `json:"omitempty"`
+		TotalScore float64       `json:"omitempty"`
+		TimePlayed time.Duration `json:"omitempty"`
 	}
 )
 
