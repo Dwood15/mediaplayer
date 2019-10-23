@@ -2,6 +2,7 @@ package songs
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
 	"sort"
@@ -12,24 +13,24 @@ import (
 
 type (
 	SongLibrary struct {
-		Songs     []SongFile    `json:"omitempty"`
-		TotalTime time.Duration `json:"omitempty"`
-		Pruned    bool
-		ToPlay    Playlist
+		Songs     []SongFile    `json:"songs,omitempty"`
+		TotalTime time.Duration `json:"total_time,omitempty"`
+		Pruned    bool          `json:"pruned,omitempty"`
+		NextSong  int           `json:"next_song,omitempty"`
 		lbWg      sync.WaitGroup
 		LibInfo
 	}
 
 	LibInfo struct {
-		AvgPlays    float64   `json:"omitempty"`
-		AvgSkips    float64   `json:"omitempty"`
-		AvgScore    float64   `json:"omitempty"`
-		LastCompute time.Time `json:"omitempty"`
+		AvgPlays    float64   `json:"avg_plays,omitempty"`
+		AvgSkips    float64   `json:"avg_skips,omitempty"`
+		AvgScore    float64   `json:"avg_score,omitempty"`
+		LastCompute time.Time `json:"last_compute_time,omitempty"`
 
-		NumSkips   uint64        `json:"omitempty"`
-		NumPlays   uint64        `json:"omitempty"`
-		TotalScore float64       `json:"omitempty"`
-		TimePlayed time.Duration `json:"omitempty"`
+		NumSkips   uint64        `json:"total_skips,omitempty"`
+		NumPlays   uint64        `json:"total_plays,omitempty"`
+		TotalScore float64       `json:"total_score,omitempty"`
+		TimePlayed time.Duration `json:"total_time_played,omitempty"`
 	}
 )
 
@@ -55,14 +56,26 @@ func SetLibraryDir(dir string) {
 }
 
 func (lib *SongLibrary) Play() {
-	if len(lib.ToPlay.SongsToPlay) == 0 {
-		panic("missing playlist of songs")
+	numSongs := len(lib.Songs)
+
+	if numSongs == 0 {
+		panic("can't play any songs without a library")
 	}
 
-	if lib.ToPlay.NextSong() {
+	if maxSize > numSongs {
+		maxSize = numSongs
+	} else if maxSize == 0 {
+		maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
+	}
+
+	if lib.NextSong >= maxSize {
+		fmt.Println("end of playlist, time to calculate next song.")
 		lib.computeScores()
 		lib.computePlaylist()
 	}
+
+	lib.Songs[lib.NextSong].Play()
+	lib.NextSong++
 }
 
 func (lib *SongLibrary) LoadFromFiles() {
@@ -74,8 +87,7 @@ func (lib *SongLibrary) LoadFromFiles() {
 	lib.lbWg.Wait()
 
 	fmt.Println("songs loaded, pulling ")
-	lib.computeScores()
-	lib.computePlaylist()
+
 }
 
 func getSongs(dir string) {
@@ -161,18 +173,12 @@ func (lib *SongLibrary) prune() {
 func (lib *SongLibrary) computePlaylist() {
 	fmt.Println("computing playlist now")
 
-	if maxSize == 0 {
-		panic("no maxSize specified")
-	}
-
 	if n := len(lib.Songs); maxSize > n {
 		fmt.Println("max size reduced to match the number of songs")
 		maxSize = n
 	}
 
-	lib.ToPlay.SongsToPlay = lib.Songs[:maxSize]
-
-	lib.ToPlay.nextSong = 0
+	lib.NextSong = 0
 	fmt.Println("playlist computed")
 }
 

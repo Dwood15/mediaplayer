@@ -12,17 +12,17 @@ import (
 
 type (
 	PlayInfo struct {
-		Score             float64   `json:"omitempty"`
-		TotalSkips        uint64    `json:"omitempty"`
-		ConsecutiveSkips  float64   `json:"omitempty"`
-		LastSkipped       time.Time `json:"omitempty"`
-		LastPlayed        time.Time `json:"omitempty"`
-		TotalPlays        uint64    `json:"omitempty"`
-		ComputesSincePlay uint8     `json:"omitempty"`
+		Score             float64   `json:"score,omitempty"`
+		TotalSkips        uint64    `json:"total_skips,omitempty"`
+		ConsecutiveSkips  float64   `json:"consecutive_skips,omitempty"`
+		LastSkipped       time.Time `json:"last_skipped_time,omitempty"`
+		LastPlayed        time.Time `json:"last_played_time,omitempty"`
+		TotalPlays        uint64    `json:"total_plays,omitempty"`
+		ComputesSincePlay uint8     `json:"computes_since_last_play,omitempty"`
 	}
 	SongFile struct {
-		FileName string
-		PlayTime time.Duration `json:"omitempty"`
+		FileName string        `json:"file_name,omitempty"`
+		PlayTime time.Duration `json:"play_time,omitempty"`
 		PlayInfo
 	}
 )

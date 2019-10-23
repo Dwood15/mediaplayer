@@ -12,7 +12,7 @@ var lib *SongLibrary
 const cacheName = "songlib.cache"
 
 func PersistLibCache() {
-	res, err := json.Marshal(lib)
+	res, err := json.MarshalIndent(lib, "", "  ")
 	if err != nil {
 		panic(err)
 	}

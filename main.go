@@ -30,7 +30,7 @@ func handleShutdown() {
 }
 
 func init() {
-	runtime.GOMAXPROCS(2)
+	runtime.GOMAXPROCS(3)
 
 	prio, err := syscall.Getpriority(syscall.PRIO_PROCESS, 0x0)
 
