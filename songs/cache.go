@@ -1,30 +1,21 @@
 package songs
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/patrickmn/go-cache"
+	"io/ioutil"
 	"os"
 )
 
-var c = cache.New(cache.NoExpiration, 0)
 var lib *SongLibrary
 
 const cacheName = "songlib.cache"
 
-func init() {
-	fp, err := os.OpenFile(cacheName, os.O_CREATE&os.O_RDWR, 0666)
-	if err == nil {
-		_ = c.Load(fp)
-		return
-	}
-
-	if !os.IsNotExist(err) {
+func PersistLibCache() {
+	res, err := json.Marshal(lib)
+	if err != nil {
 		panic(err)
 	}
-}
-
-func PersistLibCache() {
-	c.Set(cacheName, lib, -1)
 
 	fp, err := os.Create(cacheName)
 	if err != nil {
@@ -33,25 +24,32 @@ func PersistLibCache() {
 
 	defer fp.Close()
 
-	if err = c.Save(fp); err != nil {
+	if err := ioutil.WriteFile(cacheName, res, 0666); err != nil {
 		panic(err)
 	}
 }
 
 func GetLibrary() *SongLibrary {
-	if lib == nil {
-		if l, found := c.Get(cacheName); found {
-			lib = l.(*SongLibrary)
+	fmt.Println("Retrieving playlist library")
+
+	if lib != nil {
+		return lib
+	}
+
+	lib = &SongLibrary{}
+
+	res, err := ioutil.ReadFile(cacheName)
+	if err == nil {
+		if err = json.Unmarshal(res, lib); err == nil {
+			return lib
 		}
 	}
 
-	if lib == nil {
-		fmt.Println("library not found in cache - initiating full load")
-
-		lib = &SongLibrary{}
-		lib.LoadFromFiles()
-		c.Set(cacheName, lib, -1)
+	if !os.IsNotExist(err) {
+		panic(err)
 	}
+
+	lib.LoadFromFiles()
 
 	return lib
 }

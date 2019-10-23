@@ -41,8 +41,6 @@ func SetLibraryDir(dir string) {
 	}
 
 	libDir = dir
-
-	fmt.Println("music library dir set to : " + libDir)
 }
 
 var mu sync.RWMutex
@@ -61,7 +59,7 @@ func (lib *SongLibrary) Play() {
 }
 
 func (lib *SongLibrary) LoadFromFiles() {
-	fmt.Println("loading song from files")
+	fmt.Println("loading songs from files")
 
 	lib.lbWg.Add(1)
 	getSongs(libDir)
@@ -77,7 +75,7 @@ func getSongs(dir string) {
 	defer lib.lbWg.Done()
 
 	//sleep the goroutine anywhere between 0 and 2 seconds :thonk:
-	time.Sleep(time.Duration(rand.Int63n(int64(10 * time.Second))))
+	time.Sleep(time.Duration(rand.Int63n(int64(15 * time.Second))) + time.Second)
 
 	f, err := os.OpenFile(dir, os.O_RDONLY, os.ModeDir)
 	if err != nil {
