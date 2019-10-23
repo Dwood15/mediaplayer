@@ -2,7 +2,7 @@ package songs
 
 import (
 	"fmt"
-	"math"
+	"math/rand"
 	"os"
 	"sort"
 	"strings"
@@ -47,8 +47,37 @@ func SetLibraryDir(dir string) {
 
 var mu sync.RWMutex
 
+//SetMaxPlaylistSize indicates to the library what the maximum size of the playlist should be.
+//This also has the side-effect of changing how often recomputes occur.
+func (lib *SongLibrary) SetMaxPlaylistSize(max int) {
+	lib.ToPlay.maxSize = max
+}
+
+func (lib *SongLibrary) Play() {
+	if lib.ToPlay.NextSong() {
+		lib.computeScores()
+		lib.computePlaylist()
+	}
+}
+
+func (lib *SongLibrary) LoadFromFiles() {
+	fmt.Println("loading song from files")
+
+	lib.lbWg.Add(1)
+	getSongs(libDir)
+
+	lib.lbWg.Wait()
+
+	fmt.Println("songs loaded, pulling ")
+	lib.computeScores()
+	lib.computePlaylist()
+}
+
 func getSongs(dir string) {
 	defer lib.lbWg.Done()
+
+	//sleep the goroutine anywhere between 0 and 2 seconds :thonk:
+	time.Sleep(time.Duration(rand.Int63n(int64(10 * time.Second))))
 
 	f, err := os.OpenFile(dir, os.O_RDONLY, os.ModeDir)
 	if err != nil {
@@ -106,15 +135,6 @@ func getSongs(dir string) {
 	}
 }
 
-func (lib *SongLibrary) LoadFromFiles() {
-	fmt.Println("loading song from files")
-
-	lib.lbWg.Add(1)
-	getSongs(libDir)
-
-	lib.lbWg.Wait()
-}
-
 func (lib *SongLibrary) prune() {
 	songs := lib.Songs[:0]
 
@@ -132,6 +152,21 @@ func (lib *SongLibrary) prune() {
 
 	lib.Pruned = true
 }
+
+func (lib *SongLibrary) computePlaylist() {
+	fmt.Println("computing playlist now")
+
+	lib.ToPlay.SongsToPlay = lib.Songs[:lib.ToPlay.maxSize]
+
+	lib.ToPlay.nextSong = 0
+	fmt.Println("playlist computed")
+}
+
+type byScore []SongFile
+
+func (b byScore) Len() int           { return len(b) }
+func (b byScore) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+func (b byScore) Less(i, j int) bool { return b[i].Score < b[j].Score }
 
 func (lib *SongLibrary) computeScores() {
 	mu.Lock()
@@ -164,25 +199,7 @@ func (lib *SongLibrary) computeScores() {
 	lib.LastCompute = time.Now()
 
 	//O(n*log(n))
-	sort.Sort(sort.Reverse(ByScore(lib.Songs)))
+	sort.Sort(sort.Reverse(byScore(lib.Songs)))
 	mu.Unlock()
 	fmt.Println("scores computed and sorted")
-}
-
-func (lib *SongLibrary) computePlaylist() {
-	fmt.Println("computing playlist now")
-
-	plSize := int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
-
-	lib.ToPlay.SongsToPlay = lib.Songs[:plSize]
-
-	lib.ToPlay.nextSong = 0
-	fmt.Println("playlist computed")
-}
-
-func (lib *SongLibrary) Play() {
-	if lib.ToPlay.NextSong() {
-		lib.computeScores()
-		lib.computePlaylist()
-	}
 }

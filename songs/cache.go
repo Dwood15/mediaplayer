@@ -18,13 +18,7 @@ func init() {
 		return
 	}
 
-	if os.IsNotExist(err) {
-		fp, err = os.Create(cacheName)
-		if err != nil {
-			panic(err)
-		}
-
-	} else {
+	if !os.IsNotExist(err) {
 		panic(err)
 	}
 }
@@ -52,10 +46,11 @@ func GetLibrary() *SongLibrary {
 	}
 
 	if lib == nil {
+		fmt.Println("library not found in cache - initiating full load")
+
 		lib = &SongLibrary{}
 		lib.LoadFromFiles()
 		c.Set(cacheName, lib, -1)
-		fmt.Println("loaded and persisted lib from cache")
 	}
 
 	return lib

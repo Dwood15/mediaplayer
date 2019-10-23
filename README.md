@@ -40,3 +40,9 @@ I have a media library >80GB, and no media player provides adequate shuffle for 
 - Due to the limitations of the libraries beep depends on,  only select kinds of MP3 files are supported.
 
 - To build and run (linux): `go build && ./mediaplayer`
+
+## TODO
+- Implement keyboard input (lol) 
+- Implement a console ui, such as: https://github.com/gcla/gowid
+- Optimize first boot so it won't bring systems to their knees
+- Custom file / database structure (https://cstack.github.io/db_tutorial)

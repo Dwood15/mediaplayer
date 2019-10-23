@@ -6,6 +6,8 @@ import (
 	"github.com/dwood15/mediaplayer/songs"
 	"io/ioutil"
 	"os"
+	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 )
@@ -14,16 +16,30 @@ type Config struct {
 	MusicDir string `json:"music_dir"` //MusicDir is the directory where the
 }
 
+func handleShutdown() {
+	// Handle graceful shutdown
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+	<-quit
+
+	fmt.Println("shut down signal received! saving library state to the cache, then exiting")
+	songs.PersistLibCache()
+
+	os.Exit(0)
+}
+
 func init() {
+	runtime.GOMAXPROCS(4)
+
 	prio, err := syscall.Getpriority(syscall.PRIO_PROCESS, 0x0)
 
 	if err != nil {
 		panic("err getting priority")
 	}
 
-	fmt.Printf("detected priority: %d", prio)
+	fmt.Printf("detected priority: %d\n", prio)
 
-	fmt.Println("priority too high, might crowd out other processes")
+	fmt.Println("Setting priority lower")
 	err = syscall.Setpriority(syscall.PRIO_PROCESS, 0x0, 19)
 	if err != nil {
 		panic("failed setting process priority")
@@ -37,22 +53,17 @@ func main() {
 	start := time.Now()
 
 	l := songs.GetLibrary()
+	go handleShutdown()
 
 	songs.PersistLibCache()
 
 	fmt.Printf("Loaded library in: %v\n", time.Since(start))
-
-	l.Play()
-
-	songs.PersistLibCache()
-
 	fmt.Printf("Total song time loaded: %v\n", l.TotalTime)
 
-	l.Play()
-
-	songs.PersistLibCache()
-
-	fmt.Println("playing complete")
+	for {
+		l.Play()
+		songs.PersistLibCache()
+	}
 }
 
 var cfg Config

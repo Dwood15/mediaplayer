@@ -1,25 +1,28 @@
 package songs
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type (
 	Playlist struct {
 		nextSong    int
 		SongsToPlay []SongFile
+		maxSize     int
 	}
-
-	ByScore []SongFile
 )
-
-func (b ByScore) Len() int           { return len(b) }
-func (b ByScore) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
-func (b ByScore) Less(i, j int) bool { return b[i].Score < b[j].Score }
 
 func (p *Playlist) NextSong() bool {
 	numSongs := len(p.SongsToPlay)
-	fmt.Printf("nextSong begins. num to play: %v ", numSongs)
 
-	if p.nextSong >= numSongs {
+	if p.maxSize > numSongs {
+		p.maxSize = numSongs
+	} else if p.maxSize == 0 {
+		p.maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
+	}
+
+	if p.nextSong >= p.maxSize {
 		fmt.Println("end of playlist, time to calculate next song.")
 		return true
 	}
