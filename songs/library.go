@@ -22,10 +22,10 @@ type (
 	}
 
 	LibInfo struct {
-		AvgPlays    float64   `json:"avg_plays,omitempty"`
-		AvgSkips    float64   `json:"avg_skips,omitempty"`
-		AvgScore    float64   `json:"avg_score,omitempty"`
-		LastCompute int64 `json:"last_compute_time,omitempty"`
+		AvgPlays    float64 `json:"avg_plays,omitempty"`
+		AvgSkips    float64 `json:"avg_skips,omitempty"`
+		AvgScore    float64 `json:"avg_score,omitempty"`
+		LastCompute int64   `json:"last_compute_time,omitempty"`
 
 		NumSkips   uint64        `json:"total_skips,omitempty"`
 		NumPlays   uint64        `json:"total_plays,omitempty"`

@@ -12,9 +12,9 @@ import (
 	"time"
 )
 
-type Config struct {
-	MusicDir string `json:"music_dir"` //MusicDir is the directory where the
-	MaxPlaylistSize int `json:"max_playlist_size"`
+type config struct {
+	MusicDir        string `json:"music_dir"` //MusicDir is the directory where the
+	MaxPlaylistSize int    `json:"max_playlist_size"`
 }
 
 func handleShutdown() {
@@ -66,7 +66,7 @@ func main() {
 	}
 }
 
-var cfg Config
+var cfg config
 
 func loadConfig() {
 	f, err := os.Open("config.json")
