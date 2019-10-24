@@ -80,6 +80,7 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 	}
 
 	//Any higher precision than this ends with the songs playing much faster than intended, for some reason.
+	//Not particularly inclined to debug the intricacies of Beep and its child packages.
 	snr := format.SampleRate.N(time.Second / 2)
 
 	//Rather than muck about with funky math for different song sample rates,
