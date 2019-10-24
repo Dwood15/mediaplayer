@@ -36,11 +36,134 @@ type (
 	}
 )
 
+//Cross-goroutine helpers
+
+//SongState indicates what song is playing
 var SongState = make(chan PlayingSong)
+
+//SongTime indicates how far we've progressed in the song
 var SongTime = make(chan time.Duration)
+
+//HotkeyEvent signals input state to the player
 var HotkeyEvent = make(chan *tcell.EventKey)
 
+//playMu is for ensuring only one song is playing
 var playMu sync.Mutex
+
+func (sF *SongFile) Play() {
+	playMu.Lock()
+	defer playMu.Unlock()
+
+	//Load the song file
+	f, err := os.Open(sF.FileName)
+	if err != nil {
+		panic(err)
+	}
+
+	//load beep's StreamSeeker
+	streamer, format, err := mp3.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+	defer streamer.Close()
+
+	//Rather than muck about with funky math for different song sample rates,
+	//let's just initialize it to the exact format every time - we're only gonna
+	//be playing one song at a time, anyway.
+	err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/2))
+	if err != nil {
+		panic(err)
+	}
+
+	//Concurrency-safe containers for playback crosstalk.
+	var skipped atomic.Value
+	var playStart atomic.Value
+	var timePaused atomic.Value
+	done := make(chan bool)
+
+	//So we know when the stream completes
+	seq := beep.Seq(streamer, beep.Callback(func() {
+		done <- true
+		SongTime <- 0
+	}))
+
+	//So we can pause songs
+	ctrl := &beep.Ctrl{
+		Paused:   false,
+		Streamer: seq,
+	}
+
+	//So we know when the song started.
+	playStart.Store(time.Now())
+	speaker.Play(ctrl)
+
+	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
+	SongState <- PlayingSong{
+		CurrentSong: path.Base(sF.FileName),
+		SongLength:  sF.PlayTime,
+		SongScore:   sF.Score,
+	}
+
+	//Handler for user input. TODO: Make generic, move key interp to main.
+	handleKey := func(k tcell.Key) {
+		speaker.Lock()
+		defer speaker.Unlock()
+
+		switch k {
+		//ie: pause/unpause handlers
+		case tcell.KeyEnter:
+			fallthrough
+		case tcell.KeyCtrlSpace:
+			pAt := time.Now()
+			if ctrl.Paused {
+				tP := timePaused.Load().(time.Time)
+				pS := playStart.Load().(time.Time)
+				playStart.Store(pS.Add(time.Since(tP)))
+				pAt = time.Time{}
+			}
+			timePaused.Store(pAt)
+			ctrl.Paused = !ctrl.Paused
+
+			//ie: skip current song
+		case tcell.KeyTAB:
+			ps := playStart.Load().(time.Time)
+
+			if ctrl.Paused {
+				ps = ps.Add(time.Since(timePaused.Load().(time.Time)))
+			}
+
+			playStart.Store(ps)
+			skipped.Store(true)
+
+			//Len-1 so we don't have to handle the EOF error
+			if err := streamer.Seek(streamer.Len() - 1); err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	//cant declare variables on a select case
+	var hK *tcell.EventKey
+	for {
+		select {
+		case <-done:
+			mu.Lock()
+			if skipped.Load() == nil {
+				sF.updatePlayed(playStart.Load().(time.Time))
+			} else {
+				sF.updateSkipped(playStart.Load().(time.Time))
+			}
+			mu.Unlock()
+			return
+		case <-time.After(100 * time.Millisecond):
+			speaker.Lock()
+			SongTime <- format.SampleRate.D(streamer.Position()).Round(time.Second)
+			speaker.Unlock()
+		case hK = <-HotkeyEvent:
+			handleKey(hK.Key())
+		}
+	}
+}
 
 func (sF *SongFile) loadPlayTime() error {
 	f, err := os.Open(sF.FileName)
@@ -75,114 +198,6 @@ func (sF *SongFile) updatePlayed(s time.Time) {
 	sF.ComputesSincePlay = 0
 	lib.NumPlays++
 	lib.TimePlayed += time.Since(s)
-}
-
-func (sF *SongFile) Play() {
-	playMu.Lock()
-	defer playMu.Unlock()
-
-	//Load the song file
-	f, err := os.Open(sF.FileName)
-	if err != nil {
-		panic(err)
-	}
-
-	//load beep's StreamSeeker
-	streamer, format, err := mp3.Decode(f)
-	if err != nil {
-		panic(err)
-	}
-	defer streamer.Close()
-
-	//Rather than muck about with funky math for different song sample rates,
-	//let's just initialize it to the exact format every time - we're only gonna
-	//be playing one song at a time, anyway.
-	err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/2))
-	if err != nil {
-		panic(err)
-	}
-
-	//Concurrency-safe containers for goroutine crosstalk.
-	var skipped atomic.Value
-	var playStart atomic.Value
-	var timePaused atomic.Value
-	done := make(chan bool)
-
-	//So we know when the stream completes
-	seq := beep.Seq(streamer, beep.Callback(func() {
-		done <- true
-		SongTime <- 0
-	}))
-
-	//So we can pause songs
-	ctrl := &beep.Ctrl{
-		Paused:   false,
-		Streamer: seq,
-	}
-
-	//So we know when the song started.
-	playStart.Store(time.Now())
-	speaker.Play(ctrl)
-
-	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
-	SongState <- PlayingSong{
-		CurrentSong: path.Base(sF.FileName),
-		SongLength:  sF.PlayTime,
-		SongScore:   sF.Score,
-	}
-
-	handleKey := func(k tcell.Key) {
-		speaker.Lock()
-		defer speaker.Unlock()
-
-		switch k {
-		case tcell.KeyEnter:
-			fallthrough
-		case tcell.KeyCtrlSpace:
-			if !ctrl.Paused {
-				timePaused.Store(time.Now())
-			} else {
-				tP := timePaused.Load().(time.Time)
-				pS := playStart.Load().(time.Time)
-				playStart.Store(pS.Add(time.Since(tP)))
-				timePaused.Store(time.Time{})
-			}
-			ctrl.Paused = !ctrl.Paused
-
-		case tcell.KeyTAB:
-			ps := playStart.Load().(time.Time)
-
-			if ctrl.Paused {
-				ps = ps.Add(time.Since(timePaused.Load().(time.Time)))
-			}
-
-			skipped.Store(true)
-			if err := streamer.Seek(streamer.Len() - 1); err != nil {
-				panic(err)
-			}
-		}
-	}
-
-	var hK *tcell.EventKey
-	for {
-		select {
-		case <-done:
-			mu.Lock()
-			if skipped.Load() == nil {
-				sF.updatePlayed(playStart.Load().(time.Time))
-			} else {
-				sF.updateSkipped(playStart.Load().(time.Time))
-			}
-			mu.Unlock()
-			return
-		case <-time.After(100 * time.Millisecond):
-			speaker.Lock()
-			SongTime <- format.SampleRate.D(streamer.Position()).Round(time.Second)
-			speaker.Unlock()
-		case hK = <-HotkeyEvent:
-			handleKey(hK.Key())
-		}
-	}
 }
 
 func (pI *PlayInfo) computeSkipScore() bool {

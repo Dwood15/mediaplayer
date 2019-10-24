@@ -81,7 +81,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	//Redirect panic and Stderr to the file
 	os.Stderr = f
+	_ = syscall.Dup2(int(f.Fd()), 2)
+
 	defer f.Close()
 
 	l := songs.GetLibrary()
