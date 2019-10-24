@@ -24,12 +24,12 @@ func init() {
 }
 
 func main() {
-	f, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("stderr.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
 
-	//Redirect panic and Stderr to the file
+	//Attempt to redirect panics and regular stderr messages to stderr.log
 	os.Stderr = f
 	_ = syscall.Dup2(int(f.Fd()), 2)
 
