@@ -41,7 +41,7 @@ var mu sync.RWMutex
 func SetPlaylistMaxSize(max int) {
 	if max == 0 {
 		max = 25
-		fmt.Println("defaulting the max playlist selection to 25")
+		//fmt.Println("defaulting the max playlist selection to 25")
 	}
 
 	maxSize = max
@@ -69,7 +69,7 @@ func (lib *SongLibrary) Play() {
 	}
 
 	if lib.NextSong >= maxSize {
-		fmt.Println("end of playlist, time to calculate next song.")
+		//fmt.Println("end of playlist, time to calculate next song.")
 		lib.computeScores()
 		lib.computePlaylist()
 	}
@@ -79,14 +79,14 @@ func (lib *SongLibrary) Play() {
 }
 
 func (lib *SongLibrary) LoadFromFiles() {
-	fmt.Println("loading songs from files")
+	//fmt.Println("loading songs from files")
 
 	lib.lbWg.Add(1)
 	getSongs(libDir)
 
 	lib.lbWg.Wait()
 
-	fmt.Println("songs loaded, pulling ")
+	//fmt.Println("songs loaded, pulling ")
 
 }
 
@@ -171,15 +171,15 @@ func (lib *SongLibrary) prune() {
 }
 
 func (lib *SongLibrary) computePlaylist() {
-	fmt.Println("computing playlist now")
+	//fmt.Println("computing playlist now")
 
 	if n := len(lib.Songs); maxSize > n {
-		fmt.Println("max size reduced to match the number of songs")
+		//fmt.Println("max size reduced to match the number of songs")
 		maxSize = n
 	}
 
 	lib.NextSong = 0
-	fmt.Println("playlist computed")
+	//fmt.Println("playlist computed")
 }
 
 type byScore []SongFile
@@ -221,5 +221,5 @@ func (lib *SongLibrary) computeScores() {
 	//O(n*log(n))
 	sort.Sort(sort.Reverse(byScore(lib.Songs)))
 	mu.Unlock()
-	fmt.Println("scores computed and sorted")
+	//fmt.Println("scores computed and sorted")
 }

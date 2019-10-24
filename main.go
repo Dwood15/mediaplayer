@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dwood15/mediaplayer/songs"
+	"github.com/gdamore/tcell"
+	"github.com/rivo/tview"
 	"io/ioutil"
 	"os"
 	"os/signal"
@@ -23,7 +25,7 @@ func handleShutdown() {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 	<-quit
 
-	fmt.Println("shut down signal received! saving library state to the cache, then exiting")
+	//fmt.Println("shut down signal received! saving library state to the cache, then exiting")
 	songs.PersistLibCache()
 
 	os.Exit(0)
@@ -32,37 +34,68 @@ func handleShutdown() {
 func init() {
 	runtime.GOMAXPROCS(3)
 
-	prio, err := syscall.Getpriority(syscall.PRIO_PROCESS, 0x0)
-
-	if err != nil {
-		panic("err getting priority")
-	}
-
-	fmt.Printf("detected priority: %d\n", prio)
-
-	fmt.Println("Setting priority lower")
-	err = syscall.Setpriority(syscall.PRIO_PROCESS, 0x0, 19)
-	if err != nil {
+	if err := syscall.Setpriority(syscall.PRIO_PROCESS, 0x0, 19); err != nil {
 		panic("failed setting process priority")
 	}
 
 	loadConfig()
 	songs.SetLibraryDir(cfg.MusicDir)
 	songs.SetPlaylistMaxSize(cfg.MaxPlaylistSize)
+	go handleShutdown()
+}
+
+func fmtDuration(d time.Duration) string {
+	d = d.Round(time.Second)
+	m := d / time.Minute
+	d -= m * time.Minute
+	s := d / time.Second
+	return fmt.Sprintf("%02d:%02d", m, s)
+}
+
+var (
+	app  = tview.NewApplication()
+	view = tview.NewBox().SetDrawFunc(drawTime)
+)
+
+var songTime time.Duration
+
+func drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, int, int, int) {
+	timeStr := fmtDuration(songTime)
+	tview.Print(screen, timeStr, x, height/2, width, tview.AlignCenter, tcell.ColorDarkBlue)
+	return 0, 0, 0, 0
+}
+
+func refresh() {
+	for {
+		select {
+		case songTime = <-songs.SongTime:
+			app.Draw()
+		case <-songs.SongState:
+
+		}
+	}
 }
 
 func main() {
-	start := time.Now()
-
 	l := songs.GetLibrary()
-	go handleShutdown()
 
-	fmt.Printf("Loaded library in: %v\n", time.Since(start))
-	fmt.Printf("Total song time loaded: %v\n", l.TotalTime)
+	go func() {
+		for {
+			songs.PersistLibCache()
+			l.Play()
+		}
+	}()
 
-	for {
-		songs.PersistLibCache()
-		l.Play()
+	app.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+		if e.Key() == tcell.KeyEsc {
+			app.Stop()
+		}
+		return e
+	})
+
+	go refresh()
+	if err := app.SetRoot(view, true).Run(); err != nil {
+		panic(err)
 	}
 }
 
@@ -111,5 +144,5 @@ func loadConfig() {
 		panic(err)
 	}
 
-	fmt.Println("config found and loaded, music dir: " + cfg.MusicDir)
+	//fmt.Println("config found and loaded, music dir: " + cfg.MusicDir)
 }

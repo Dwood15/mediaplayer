@@ -7,6 +7,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"path"
 	"time"
 )
 
@@ -25,7 +26,15 @@ type (
 		PlayTime time.Duration `json:"play_time,omitempty"`
 		PlayInfo
 	}
+	PlayingSong struct {
+		CurrentSong     string
+		SongScore       float64
+		SongLength      time.Duration
+	}
 )
+
+var SongState = make(chan PlayingSong)
+var SongTime = make(chan time.Duration)
 
 func (sF *SongFile) loadPlayTime() error {
 	f, err := os.Open(sF.FileName)
@@ -63,6 +72,12 @@ func (sF *SongFile) Play() {
 		done <- true
 	})))
 
+	SongState<-PlayingSong{
+		CurrentSong: path.Base(sF.FileName),
+		SongLength: sF.PlayTime,
+		SongScore: sF.Score,
+	}
+
 	for {
 		select {
 		case <-done:
@@ -73,10 +88,10 @@ func (sF *SongFile) Play() {
 			lib.TimePlayed += time.Since(playStart)
 			mu.Unlock()
 			return
-			//case <-time.After(time.Second):
-			//	speaker.Lock()
-			//	fmt.Println(format.SampleRate.D(streamer.Position()).Round(time.Second))
-			//	speaker.Unlock()
+		case <-time.After(time.Second):
+			speaker.Lock()
+			SongTime<-format.SampleRate.D(streamer.Position()).Round(time.Second)
+			speaker.Unlock()
 		}
 	}
 }

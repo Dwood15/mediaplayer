@@ -2,7 +2,6 @@ package songs
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -30,7 +29,7 @@ func PersistLibCache() {
 }
 
 func GetLibrary() *SongLibrary {
-	fmt.Println("Retrieving playlist library")
+	//fmt.Println("Retrieving playlist library")
 
 	defer func() {
 		lib.computeScores()
