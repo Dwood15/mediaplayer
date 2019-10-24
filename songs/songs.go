@@ -24,8 +24,9 @@ type (
 		ComputesSincePlay uint8   `json:"computes_since_last_play,omitempty"`
 	}
 	SongFile struct {
-		FileName string        `json:"file_name,omitempty"`
-		PlayTime time.Duration `json:"play_time,omitempty"`
+		FileName   string        `json:"file_name,omitempty"`
+		PlayTime   time.Duration `json:"play_time,omitempty"`
+		format beep.Format
 		PlayInfo
 	}
 	PlayingSong struct {
@@ -57,10 +58,7 @@ var PlayerSignal = make(chan int)
 //playMu is for ensuring only one song is playing
 var playMu sync.Mutex
 
-func (sF *SongFile) Play() {
-	playMu.Lock()
-	defer playMu.Unlock()
-
+func (sF *SongFile) initFile() (s beep.StreamSeekCloser) {
 	//Load the song file
 	f, err := os.Open(sF.FileName)
 	if err != nil {
@@ -68,18 +66,25 @@ func (sF *SongFile) Play() {
 	}
 
 	//load beep's StreamSeeker
-	streamer, format, err := mp3.Decode(f)
-	if err != nil {
+	if s, sF.format, err = mp3.Decode(f); err != nil {
 		panic(err)
 	}
-	defer streamer.Close()
 
 	//Rather than muck about with funky math for different song sample rates,
 	//let's just initialize it to the exact format every time - we're only gonna
 	//be playing one song at a time, anyway.
-	if err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/2)); err != nil {
+	if err = speaker.Init(sF.format.SampleRate, sF.format.SampleRate.N(time.Second/2)); err != nil {
 		panic(err)
 	}
+	return
+}
+
+func (sF *SongFile) Play() (shouldExit bool) {
+	playMu.Lock()
+	defer playMu.Unlock()
+
+	s := sF.initFile()
+	defer s.Close()
 
 	//Concurrency-safe containers for playback crosstalk.
 	var skipped atomic.Value
@@ -87,7 +92,7 @@ func (sF *SongFile) Play() {
 	var timePaused atomic.Value
 
 	//So we know when the stream completes
-	seq := beep.Seq(streamer, beep.Callback(func() {
+	seq := beep.Seq(s, beep.Callback(func() {
 		PlayerSignal <- signalComplete
 		SongTime.Store(time.Duration(0))
 	}))
@@ -114,7 +119,7 @@ func (sF *SongFile) Play() {
 		for {
 			select {
 			case <-time.After(50 * time.Millisecond):
-				SongTime.Store(format.SampleRate.D(streamer.Position()).Round(time.Second))
+				SongTime.Store(sF.format.SampleRate.D(s.Position()).Round(time.Second))
 				if ctrl.Streamer == nil {
 					return
 				}
@@ -147,10 +152,11 @@ func (sF *SongFile) Play() {
 
 			playStart.Store(ps)
 			//Len-1 so we don't have to handle the EOF error
-			if err := streamer.Seek(streamer.Len() - 1); err != nil {
+			if err := s.Seek(s.Len() - 1); err != nil {
 				panic(err)
 			}
 			speaker.Unlock()
+			shouldExit = true
 		}
 
 		if plyrSig == SignalSkip {
@@ -165,7 +171,7 @@ func (sF *SongFile) Play() {
 
 			speaker.Lock()
 			//Len-1 so we don't have to handle the EOF error
-			if err := streamer.Seek(streamer.Len() - 1); err != nil {
+			if err := s.Seek(s.Len() - 1); err != nil {
 				panic(err)
 			}
 			speaker.Unlock()

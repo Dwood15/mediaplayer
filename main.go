@@ -46,7 +46,7 @@ func main() {
 	}()
 
 	launchUI()
-	//Even with the ui down, we'll at least wait for the library to close
+	//Even with the ui down, we need to wait for the library to close
 	wg.Wait()
 }
 
