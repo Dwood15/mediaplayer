@@ -45,7 +45,7 @@ func init() {
 }
 
 func fmtDuration(d time.Duration) string {
-	d = d.Round(time.Second)
+	d = d.Truncate(time.Second)
 	m := d / time.Minute
 	d -= m * time.Minute
 	s := d / time.Second
@@ -77,6 +77,13 @@ func refresh() {
 }
 
 func main() {
+	f, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+	os.Stderr = f
+	defer f.Close()
+
 	l := songs.GetLibrary()
 
 	go func() {
@@ -93,8 +100,14 @@ func main() {
 		return e
 	})
 
+	view.SetBackgroundColor(tcell.ColorBlack)
+	view.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+		songs.HotkeyEvent <- e
+		return e
+	})
+
 	go refresh()
-	if err := app.SetRoot(view, true).Run(); err != nil {
+	if err := app.SetRoot(view, false).Run(); err != nil {
 		panic(err)
 	}
 }
@@ -139,10 +152,7 @@ func loadConfig() {
 	}
 	f.Close()
 
-	err = json.Unmarshal(b, &cfg)
-	if err != nil {
+	if err = json.Unmarshal(b, &cfg); err != nil {
 		panic(err)
 	}
-
-	//fmt.Println("config found and loaded, music dir: " + cfg.MusicDir)
 }

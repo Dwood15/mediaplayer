@@ -4,10 +4,13 @@ import (
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
+	"github.com/gdamore/tcell"
 	"math"
 	"math/rand"
 	"os"
 	"path"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -27,14 +30,17 @@ type (
 		PlayInfo
 	}
 	PlayingSong struct {
-		CurrentSong     string
-		SongScore       float64
-		SongLength      time.Duration
+		CurrentSong string
+		SongScore   float64
+		SongLength  time.Duration
 	}
 )
 
 var SongState = make(chan PlayingSong)
 var SongTime = make(chan time.Duration)
+var HotkeyEvent = make(chan *tcell.EventKey)
+
+var playMu sync.Mutex
 
 func (sF *SongFile) loadPlayTime() error {
 	f, err := os.Open(sF.FileName)
@@ -53,45 +59,128 @@ func (sF *SongFile) loadPlayTime() error {
 	return nil
 }
 
+func (sF *SongFile) updateSkipped(s time.Time) {
+	sF.ConsecutiveSkips++
+	sF.TotalSkips++
+	sF.ComputesSincePlay = 0
+	sF.LastSkipped = time.Now().Unix()
+	lib.NumSkips++
+	lib.TimePlayed += time.Since(s)
+}
+
+func (sF *SongFile) updatePlayed(s time.Time) {
+	sF.TotalPlays++
+	sF.LastPlayed = time.Now().Unix()
+	sF.ConsecutiveSkips = 0
+	sF.ComputesSincePlay = 0
+	lib.NumPlays++
+	lib.TimePlayed += time.Since(s)
+}
+
 func (sF *SongFile) Play() {
+	playMu.Lock()
+	defer playMu.Unlock()
+
+	//Load the song file
 	f, err := os.Open(sF.FileName)
 	if err != nil {
 		panic(err)
 	}
 
+	//load beep's StreamSeeker
 	streamer, format, err := mp3.Decode(f)
 	if err != nil {
 		panic(err)
 	}
 	defer streamer.Close()
+
+	//Rather than muck about with funky math for different song sample rates,
+	//let's just initialize it to the exact format every time - we're only gonna
+	//be playing one song at a time, anyway.
 	err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/2))
-
-	playStart := time.Now()
-	done := make(chan bool)
-	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
-		done <- true
-	})))
-
-	SongState<-PlayingSong{
-		CurrentSong: path.Base(sF.FileName),
-		SongLength: sF.PlayTime,
-		SongScore: sF.Score,
+	if err != nil {
+		panic(err)
 	}
 
+	//Concurrency-safe containers for goroutine crosstalk.
+	var skipped atomic.Value
+	var playStart atomic.Value
+	var timePaused atomic.Value
+	done := make(chan bool)
+
+	//So we know when the stream completes
+	seq := beep.Seq(streamer, beep.Callback(func() {
+		done <- true
+		SongTime <- 0
+	}))
+
+	//So we can pause songs
+	ctrl := &beep.Ctrl{
+		Paused:   false,
+		Streamer: seq,
+	}
+
+	//So we know when the song started.
+	playStart.Store(time.Now())
+	speaker.Play(ctrl)
+
+	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
+	SongState <- PlayingSong{
+		CurrentSong: path.Base(sF.FileName),
+		SongLength:  sF.PlayTime,
+		SongScore:   sF.Score,
+	}
+
+	handleKey := func(k tcell.Key) {
+		speaker.Lock()
+		defer speaker.Unlock()
+
+		switch k {
+		case tcell.KeyEnter:
+			fallthrough
+		case tcell.KeyCtrlSpace:
+			if !ctrl.Paused {
+				timePaused.Store(time.Now())
+			} else {
+				tP := timePaused.Load().(time.Time)
+				pS := playStart.Load().(time.Time)
+				playStart.Store(pS.Add(time.Since(tP)))
+				timePaused.Store(time.Time{})
+			}
+			ctrl.Paused = !ctrl.Paused
+
+		case tcell.KeyTAB:
+			ps := playStart.Load().(time.Time)
+
+			if ctrl.Paused {
+				ps = ps.Add(time.Since(timePaused.Load().(time.Time)))
+			}
+
+			skipped.Store(true)
+			if err := streamer.Seek(streamer.Len() - 1); err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	var hK *tcell.EventKey
 	for {
 		select {
 		case <-done:
 			mu.Lock()
-			sF.TotalPlays++
-			sF.LastPlayed = time.Now().Unix()
-			lib.NumPlays++
-			lib.TimePlayed += time.Since(playStart)
+			if skipped.Load() == nil {
+				sF.updatePlayed(playStart.Load().(time.Time))
+			} else {
+				sF.updateSkipped(playStart.Load().(time.Time))
+			}
 			mu.Unlock()
 			return
-		case <-time.After(time.Second):
+		case <-time.After(100 * time.Millisecond):
 			speaker.Lock()
-			SongTime<-format.SampleRate.D(streamer.Position()).Round(time.Second)
+			SongTime <- format.SampleRate.D(streamer.Position()).Round(time.Second)
 			speaker.Unlock()
+		case hK = <-HotkeyEvent:
+			handleKey(hK.Key())
 		}
 	}
 }

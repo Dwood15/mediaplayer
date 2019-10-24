@@ -12,6 +12,7 @@ import (
 )
 
 type (
+	//SongLibrary is a large structure for containing the state of the media player
 	SongLibrary struct {
 		Songs     []SongFile    `json:"songs,omitempty"`
 		TotalTime time.Duration `json:"total_time,omitempty"`
@@ -21,6 +22,7 @@ type (
 		LibInfo
 	}
 
+	//LibInfo Provides metadata and basic statistics around the player state
 	LibInfo struct {
 		AvgPlays    float64 `json:"avg_plays,omitempty"`
 		AvgSkips    float64 `json:"avg_skips,omitempty"`
@@ -35,9 +37,11 @@ type (
 )
 
 var libDir = ""
-var maxSize int
+var maxSize = 25
 var mu sync.RWMutex
 
+//SetPlaylistMaxSize indicates to the player at what interval of played songs it should initiate computes.
+// if unspecified, the maxSize defaults to 25 songs
 func SetPlaylistMaxSize(max int) {
 	if max == 0 {
 		max = 25
@@ -47,6 +51,7 @@ func SetPlaylistMaxSize(max int) {
 	maxSize = max
 }
 
+//SetLibraryDir sets the library to the specified directory folder
 func SetLibraryDir(dir string) {
 	if len(dir) == 0 {
 		panic("no dir provided to search for music")
@@ -55,6 +60,7 @@ func SetLibraryDir(dir string) {
 	libDir = dir
 }
 
+//Play begins the cycle of playing songs
 func (lib *SongLibrary) Play() {
 	numSongs := len(lib.Songs)
 
@@ -78,16 +84,12 @@ func (lib *SongLibrary) Play() {
 	lib.NextSong++
 }
 
+//LoadFromFiles initiates recursive directory scanning to find mp3 files.
 func (lib *SongLibrary) LoadFromFiles() {
-	//fmt.Println("loading songs from files")
-
 	lib.lbWg.Add(1)
 	getSongs(libDir)
 
 	lib.lbWg.Wait()
-
-	//fmt.Println("songs loaded, pulling ")
-
 }
 
 func getSongs(dir string) {
@@ -152,38 +154,17 @@ func getSongs(dir string) {
 	}
 }
 
-func (lib *SongLibrary) prune() {
-	songs := lib.Songs[:0]
-
-	for _, song := range lib.Songs {
-		err := song.loadPlayTime()
-
-		if err == nil && song.PlayTime > 1*time.Minute+29*time.Second {
-			songs = append(songs, song)
-		}
-	}
-
-	mu.Lock()
-	lib.Songs = songs
-	mu.Unlock()
-
-	lib.Pruned = true
-}
-
 func (lib *SongLibrary) computePlaylist() {
-	//fmt.Println("computing playlist now")
 
 	if n := len(lib.Songs); maxSize > n {
-		//fmt.Println("max size reduced to match the number of songs")
 		maxSize = n
 	}
 
 	lib.NextSong = 0
-	//fmt.Println("playlist computed")
 }
 
+//Utilities for sorting the library of songs
 type byScore []SongFile
-
 func (b byScore) Len() int           { return len(b) }
 func (b byScore) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 func (b byScore) Less(i, j int) bool { return b[i].Score < b[j].Score }
@@ -222,4 +203,23 @@ func (lib *SongLibrary) computeScores() {
 	sort.Sort(sort.Reverse(byScore(lib.Songs)))
 	mu.Unlock()
 	//fmt.Println("scores computed and sorted")
+}
+
+//Currently unused function, explicitly for
+func (lib *SongLibrary) prune() {
+	songs := lib.Songs[:0]
+
+	for _, song := range lib.Songs {
+		err := song.loadPlayTime()
+
+		if err == nil && song.PlayTime > 1*time.Minute+29*time.Second {
+			songs = append(songs, song)
+		}
+	}
+
+	mu.Lock()
+	lib.Songs = songs
+	mu.Unlock()
+
+	lib.Pruned = true
 }

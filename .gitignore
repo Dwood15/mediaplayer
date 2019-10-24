@@ -4,3 +4,4 @@ data/
 *.cache
 mediaplayer
 config.json
+log.txt
