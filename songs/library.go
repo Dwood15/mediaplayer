@@ -61,26 +61,25 @@ func SetLibraryDir(dir string) {
 
 //Play begins the cycle of playing songs
 func (lib *SongLibrary) BeginPlaying() {
-	for {
-		numSongs := len(lib.Songs)
+	numSongs := len(lib.Songs)
 
-		if numSongs == 0 {
-			panic("can't play any songs without a library")
-		}
+	if numSongs == 0 {
+		panic("can't play any songs without a library")
+	}
 
-		if maxSize > numSongs {
-			maxSize = numSongs
-		} else if maxSize == 0 {
-			maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
-		}
+	if maxSize > numSongs {
+		maxSize = numSongs
+	} else if maxSize == 0 {
+		maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
+	}
 
+	for !lib.Songs[lib.NextSong].Play() {
 		if lib.NextSong >= maxSize {
 			//fmt.Println("end of playlist, time to calculate next song.")
 			lib.computeScores()
 			lib.computePlaylist()
 		}
 
-		lib.Songs[lib.NextSong].Play()
 		lib.NextSong++
 		lib.persistSelf()
 	}

@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"sync"
 	"syscall"
 )
 
@@ -30,24 +29,14 @@ func main() {
 	}
 
 	//Attempt to redirect panics and regular stderr messages to stderr.log
-	os.Stderr = f
 	_ = syscall.Dup2(int(f.Fd()), 2)
 
-	defer f.Close()
-
-	l := songs.GetLibrary()
-
-	var wg sync.WaitGroup
 	go func() {
-		wg.Add(1)
 		//BeginPlaying enters into an infinite loop
-		l.BeginPlaying()
-		wg.Done()
+		songs.GetLibrary().BeginPlaying()
 	}()
 
 	launchUI()
-	//Even with the ui down, we need to wait for the library to close
-	wg.Wait()
 }
 
 func handleShutdown() {

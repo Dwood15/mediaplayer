@@ -14,17 +14,8 @@ var (
 )
 
 func launchUI() {
-	app.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
-		if e.Key() == tcell.KeyEsc {
-			songs.PlayerSignal<-songs.SignalExit
-			app.Stop()
-		}
-		return e
-	})
-
 	view.SetBackgroundColor(tcell.ColorBlack)
 	view.SetInputCapture(musicPlayerSignal)
-
 	go refresh()
 
 	if err := app.SetRoot(view, false).Run(); err != nil {
@@ -33,16 +24,14 @@ func launchUI() {
 }
 
 func musicPlayerSignal(e *tcell.EventKey) *tcell.EventKey {
-	var toSignal int
 	switch e.Key() {
 	case tcell.KeyTAB:
-		toSignal = songs.SignalSkip
+		songs.PlayerSignal <- songs.SignalSkip
 	case tcell.KeyEnter:
-		toSignal = songs.SignalPause
-	}
-
-	if toSignal > 0 {
-		songs.PlayerSignal <- toSignal
+		songs.PlayerSignal <- songs.SignalPause
+	case tcell.KeyEsc:
+		songs.PlayerSignal <- songs.SignalExit
+		app.Stop()
 	}
 
 	return e
