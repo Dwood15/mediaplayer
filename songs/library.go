@@ -45,7 +45,6 @@ var mu sync.RWMutex
 func SetPlaylistMaxSize(max int) {
 	if max == 0 {
 		max = 25
-		//fmt.Println("defaulting the max playlist selection to 25")
 	}
 
 	maxSize = max
@@ -61,27 +60,30 @@ func SetLibraryDir(dir string) {
 }
 
 //Play begins the cycle of playing songs
-func (lib *SongLibrary) Play() {
-	numSongs := len(lib.Songs)
+func (lib *SongLibrary) BeginPlaying() {
+	for {
+		numSongs := len(lib.Songs)
 
-	if numSongs == 0 {
-		panic("can't play any songs without a library")
+		if numSongs == 0 {
+			panic("can't play any songs without a library")
+		}
+
+		if maxSize > numSongs {
+			maxSize = numSongs
+		} else if maxSize == 0 {
+			maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
+		}
+
+		if lib.NextSong >= maxSize {
+			//fmt.Println("end of playlist, time to calculate next song.")
+			lib.computeScores()
+			lib.computePlaylist()
+		}
+
+		lib.Songs[lib.NextSong].Play()
+		lib.NextSong++
+		lib.persistSelf()
 	}
-
-	if maxSize > numSongs {
-		maxSize = numSongs
-	} else if maxSize == 0 {
-		maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
-	}
-
-	if lib.NextSong >= maxSize {
-		//fmt.Println("end of playlist, time to calculate next song.")
-		lib.computeScores()
-		lib.computePlaylist()
-	}
-
-	lib.Songs[lib.NextSong].Play()
-	lib.NextSong++
 }
 
 //LoadFromFiles initiates recursive directory scanning to find mp3 files.

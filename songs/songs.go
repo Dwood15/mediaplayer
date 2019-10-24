@@ -4,7 +4,6 @@ import (
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
-	"github.com/gdamore/tcell"
 	"math"
 	"math/rand"
 	"os"
@@ -36,16 +35,24 @@ type (
 	}
 )
 
+const (
+	SignalPause = iota + 1
+	SignalPlay
+	SignalSkip
+	SignalExit
+	signalComplete
+)
+
 //Cross-goroutine helpers
 
 //SongState indicates what song is playing
 var SongState = make(chan PlayingSong)
 
 //SongTime indicates how far we've progressed in the song
-var SongTime = make(chan time.Duration)
+var SongTime atomic.Value
 
-//HotkeyEvent signals input state to the player
-var HotkeyEvent = make(chan *tcell.EventKey)
+//PlayerSignal signals input state from the ui to the player
+var PlayerSignal = make(chan int)
 
 //playMu is for ensuring only one song is playing
 var playMu sync.Mutex
@@ -70,8 +77,7 @@ func (sF *SongFile) Play() {
 	//Rather than muck about with funky math for different song sample rates,
 	//let's just initialize it to the exact format every time - we're only gonna
 	//be playing one song at a time, anyway.
-	err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/2))
-	if err != nil {
+	if err = speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/2)); err != nil {
 		panic(err)
 	}
 
@@ -79,12 +85,11 @@ func (sF *SongFile) Play() {
 	var skipped atomic.Value
 	var playStart atomic.Value
 	var timePaused atomic.Value
-	done := make(chan bool)
 
 	//So we know when the stream completes
 	seq := beep.Seq(streamer, beep.Callback(func() {
-		done <- true
-		SongTime <- 0
+		PlayerSignal <- signalComplete
+		SongTime.Store(time.Duration(0))
 	}))
 
 	//So we can pause songs
@@ -95,6 +100,7 @@ func (sF *SongFile) Play() {
 
 	//So we know when the song started.
 	playStart.Store(time.Now())
+
 	speaker.Play(ctrl)
 
 	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
@@ -104,49 +110,22 @@ func (sF *SongFile) Play() {
 		SongScore:   sF.Score,
 	}
 
-	//Handler for user input. TODO: Make generic, move key interp to main.
-	handleKey := func(k tcell.Key) {
-		speaker.Lock()
-		defer speaker.Unlock()
-
-		switch k {
-		//ie: pause/unpause handlers
-		case tcell.KeyEnter:
-			fallthrough
-		case tcell.KeyCtrlSpace:
-			pAt := time.Now()
-			if ctrl.Paused {
-				tP := timePaused.Load().(time.Time)
-				pS := playStart.Load().(time.Time)
-				playStart.Store(pS.Add(time.Since(tP)))
-				pAt = time.Time{}
-			}
-			timePaused.Store(pAt)
-			ctrl.Paused = !ctrl.Paused
-
-			//ie: skip current song
-		case tcell.KeyTAB:
-			ps := playStart.Load().(time.Time)
-
-			if ctrl.Paused {
-				ps = ps.Add(time.Since(timePaused.Load().(time.Time)))
-			}
-
-			playStart.Store(ps)
-			skipped.Store(true)
-
-			//Len-1 so we don't have to handle the EOF error
-			if err := streamer.Seek(streamer.Len() - 1); err != nil {
-				panic(err)
+	go func() {
+		for {
+			select {
+			case <-time.After(50 * time.Millisecond):
+				SongTime.Store(format.SampleRate.D(streamer.Position()).Round(time.Second))
+				if ctrl.Streamer == nil {
+					return
+				}
 			}
 		}
-	}
+	}()
 
-	//cant declare variables on a select case
-	var hK *tcell.EventKey
 	for {
-		select {
-		case <-done:
+		plyrSig := <-PlayerSignal
+
+		if plyrSig == signalComplete {
 			mu.Lock()
 			if skipped.Load() == nil {
 				sF.updatePlayed(playStart.Load().(time.Time))
@@ -155,14 +134,59 @@ func (sF *SongFile) Play() {
 			}
 			mu.Unlock()
 			return
-		case <-time.After(100 * time.Millisecond):
+		}
+
+		//Signal the exit here, which will cause the done func up above to trigger and send
+		//the signalComplete signal. Hopefully, out of order event reception doesn't happen super often
+		if plyrSig == SignalExit {
 			speaker.Lock()
-			SongTime <- format.SampleRate.D(streamer.Position()).Round(time.Second)
+			ps := playStart.Load().(time.Time)
+			if ctrl.Paused {
+				ps = ps.Add(time.Since(timePaused.Load().(time.Time)))
+			}
+
+			playStart.Store(ps)
+			//Len-1 so we don't have to handle the EOF error
+			if err := streamer.Seek(streamer.Len() - 1); err != nil {
+				panic(err)
+			}
 			speaker.Unlock()
-		case hK = <-HotkeyEvent:
-			handleKey(hK.Key())
+		}
+
+		if plyrSig == SignalSkip {
+			//ie: skip current song
+			ps := playStart.Load().(time.Time)
+			if ctrl.Paused {
+				ps = ps.Add(time.Since(timePaused.Load().(time.Time)))
+			}
+
+			playStart.Store(ps)
+			skipped.Store(true)
+
+			speaker.Lock()
+			//Len-1 so we don't have to handle the EOF error
+			if err := streamer.Seek(streamer.Len() - 1); err != nil {
+				panic(err)
+			}
+			speaker.Unlock()
+		}
+
+		if plyrSig == SignalPause || plyrSig == SignalPlay {
+			pAt := time.Now()
+			if ctrl.Paused {
+				tP := timePaused.Load().(time.Time)
+				pS := playStart.Load().(time.Time)
+				playStart.Store(pS.Add(time.Since(tP)))
+				pAt = time.Time{}
+			}
+			timePaused.Store(pAt)
+
+			speaker.Lock()
+			ctrl.Paused = !ctrl.Paused
+			speaker.Unlock()
 		}
 	}
+
 }
 
 func (sF *SongFile) loadPlayTime() error {
