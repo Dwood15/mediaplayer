@@ -79,7 +79,7 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 		panic(err)
 	}
 
-	//Any higher precision than this ends with the songs playing at triple-speed.
+	//Any higher precision than this ends with the songs playing much faster than intended, for some reason.
 	snr := format.SampleRate.N(time.Second / 2)
 
 	//Rather than muck about with funky math for different song sample rates,
@@ -89,9 +89,10 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 		panic(err)
 	}
 
-	buf := beep.NewBuffer(format)
-	buf.Append(s)
-	s = buf.Streamer(0, buf.Len())
+	//This seems to decrease performance quite a bit, leaving it commented out for now.
+	//buf := beep.NewBuffer(format)
+	//buf.Append(s)
+	//s = buf.Streamer(0, buf.Len())
 
 	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
 	SongState <- PlayingSong{
