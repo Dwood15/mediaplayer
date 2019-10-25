@@ -59,6 +59,8 @@ func SetLibraryDir(dir string) {
 	libDir = dir
 }
 
+//NextSongFiles returns a slice of {CurrentSong} up to {CurrrentSong}+num. Returns nil if num is out of
+//range
 func (lib *SongLibrary) NextSongFiles(num int) (s []SongFile) {
 	if num <= 0 {
 		return nil
@@ -170,9 +172,10 @@ func (b byScore) Less(i, j int) bool { return b[i].Score < b[j].Score }
 
 func (lib *SongLibrary) computeScores() {
 	lib.mu.Lock()
+	defer lib.mu.Unlock()
 
 	// Don't actually compute if we're just loading from a file
-	if lib.NumPlays > 0 &&  lib.NextSong < maxSize {
+	if lib.NumPlays > 0 && lib.NextSong < maxSize {
 		return
 	}
 
@@ -206,7 +209,6 @@ func (lib *SongLibrary) computeScores() {
 	lib.NextSong = 0
 	//O(n*log(n))
 	sort.Sort(sort.Reverse(byScore(lib.Songs)))
-	lib.mu.Unlock()
 }
 
 //Currently unused function, explicitly for

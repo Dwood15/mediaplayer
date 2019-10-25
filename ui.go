@@ -8,17 +8,35 @@ import (
 	"time"
 )
 
-var (
-	app  = tview.NewApplication()
-	view = tview.NewBox().SetDrawFunc(drawTime)
-)
+func gridView() *tview.Grid {
+	newPrimitive := func(text string) tview.Primitive {
+		return tview.NewTextView().
+			SetTextAlign(tview.AlignCenter).
+			SetText(text)
+	}
+
+	view := tview.NewTextView().
+		SetTextAlign(tview.AlignCenter).
+		SetDrawFunc(drawTime)
+
+	return tview.NewGrid().
+		SetSize(1, 1, 15, 20).
+		SetMinSize(10, 10).
+		SetBorders(true).
+		AddItem(newPrimitive("Header"), 0, 0, 1, 1, 5, 5, false).
+		AddItem(view, 1, 1, 1, 1, 5, 5, false)
+}
+
+
+var app  = tview.NewApplication()
 
 func launchUI() {
-	view.SetBackgroundColor(tcell.ColorBlack)
-	view.SetInputCapture(musicPlayerSignal)
+
 	go refresh()
 
-	if err := app.SetRoot(view, false).Run(); err != nil {
+	app.SetInputCapture(musicPlayerSignal)
+	grid := gridView()
+	if err := app.SetRoot(grid, true).Run(); err != nil {
 		panic(err)
 	}
 }
@@ -47,8 +65,8 @@ func fmtDuration(d time.Duration) string {
 
 func drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, int, int, int) {
 	timeStr := fmtDuration(songs.SongTime.Load().(time.Duration))
-	tview.Print(screen, timeStr, x, height/2, width, tview.AlignCenter, tcell.ColorDarkBlue)
-	return 0, 0, 0, 0
+	tview.Print(screen, timeStr, x, height/2, width, tview.AlignCenter, tcell.ColorTomato)
+	return x, y, width, height
 }
 
 func refresh() {

@@ -58,7 +58,6 @@ var (
 	//playMu is for ensuring only one song is playing
 	playMu sync.Mutex
 	//Concurrency-safe containers for playback crosstalk.
-	skipped    atomic.Value
 	playStart  atomic.Value
 	timePaused atomic.Value
 	format     beep.Format
@@ -103,11 +102,6 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 		SongScore:   sF.Score,
 	}
 
-	skipped.Store(false)
-	timePaused.Store(time.Time{})
-	//So we know when the song started.
-	playStart.Store(time.Now())
-
 	return
 }
 
@@ -117,21 +111,35 @@ func (sF *SongFile) play() (shouldExit bool) {
 
 	s := sF.initFile()
 
+	var skipped atomic.Value
+	skipped.Store(false)
+
 	//So we can pause songs
 	ctrl := &beep.Ctrl{
-		Paused:   false,
-		Streamer: beep.Seq(s, beep.Callback(func() { PlayerSignal <- SignalSongComplete })),
+		Paused: false,
+		Streamer: beep.Seq(s, beep.Callback(func() {
+			wasSkipped := skipped.Load().(bool)
+			if wasSkipped {
+				return
+			}
+
+			PlayerSignal <- SignalSongComplete
+		})),
 	}
+
+	timePaused.Store(time.Time{})
+	//So we know when the song started.
+	playStart.Store(time.Now())
 
 	speaker.Play(ctrl)
 
-	defer playMu.Unlock()
-
 	var plyrSig int
+
+	tkr := time.NewTicker(75 * time.Millisecond)
 
 	for {
 		select {
-		case <-time.After(75 * time.Millisecond):
+		case <-tkr.C:
 			SongTime.Store(format.SampleRate.D(s.Position()))
 		case plyrSig = <-PlayerSignal:
 			//Signal the exit here, which will cause the done func up above to trigger and send
@@ -139,20 +147,23 @@ func (sF *SongFile) play() (shouldExit bool) {
 			switch plyrSig {
 			case SignalExit:
 				shouldExit = true
-				fallthrough
-			case SignalSkip:
-				skipped.Store(!shouldExit)
-				fallthrough
-			case SignalSongComplete:
-				sF.onFinish(ctrl)
-				return
+				skipped.Store(false)
+			case SignalSkip, SignalSongComplete:
+				goto closeShop
 			case SignalPause, SignalPlay:
 				sF.togglePause(ctrl)
 			}
 			plyrSig = 0
 		}
-
 	}
+
+closeShop:
+	tkr.Stop()
+	playMu.Unlock()
+	skpd := plyrSig == SignalSkip
+	skipped.Store(skpd)
+	sF.onFinish(ctrl, skpd)
+	return
 }
 
 func (sF *SongFile) togglePause(ctrl *beep.Ctrl) {
@@ -171,7 +182,7 @@ func (sF *SongFile) togglePause(ctrl *beep.Ctrl) {
 	speaker.Unlock()
 }
 
-func (sF *SongFile) onFinish(ctrl *beep.Ctrl) {
+func (sF *SongFile) onFinish(ctrl *beep.Ctrl, skipped bool) {
 	speaker.Lock()
 	ps := playStart.Load().(time.Time)
 	if ctrl.Paused {
@@ -181,7 +192,7 @@ func (sF *SongFile) onFinish(ctrl *beep.Ctrl) {
 
 	lib.mu.Lock()
 
-	sF.update(ps, skipped.Load().(bool))
+	sF.update(ps, skipped)
 
 	lib.mu.Unlock()
 	SongTime.Store(time.Duration(0))

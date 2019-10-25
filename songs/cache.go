@@ -28,6 +28,7 @@ func (lib *SongLibrary) persistSelf() {
 	}
 }
 
+//GetLibrary attempts to load the SongLibrary, for media-playing functionality.
 func GetLibrary() *SongLibrary {
 	defer func() {
 		if n := len(lib.Songs); maxSize > n {
