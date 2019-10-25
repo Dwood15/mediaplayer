@@ -52,13 +52,13 @@ func drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, in
 }
 
 func refresh() {
+	tckr := time.NewTicker(25 * time.Millisecond)
+
 	for {
 		select {
-		case <-time.After(50 * time.Millisecond):
+		case <-tckr.C:
 			app.Draw()
 		case <-songs.SongState:
-
 		}
 	}
 }
-

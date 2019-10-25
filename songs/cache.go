@@ -29,10 +29,8 @@ func (lib *SongLibrary) persistSelf() {
 }
 
 func GetLibrary() *SongLibrary {
-	//fmt.Println("Retrieving playlist library")
-
 	defer func() {
-		lib.computeScores()
+		lib.simpleCompute()
 		lib.computePlaylist()
 	}()
 

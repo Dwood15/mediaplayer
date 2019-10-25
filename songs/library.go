@@ -19,6 +19,7 @@ type (
 		Pruned    bool          `json:"pruned,omitempty"`
 		NextSong  int           `json:"next_song,omitempty"`
 		lbWg      sync.WaitGroup
+		mu        sync.RWMutex
 		LibInfo
 	}
 
@@ -26,19 +27,18 @@ type (
 	LibInfo struct {
 		AvgPlays    float64 `json:"avg_plays,omitempty"`
 		AvgSkips    float64 `json:"avg_skips,omitempty"`
-		AvgScore    float64 `json:"avg_score,omitempty"`
+		AvgScore    uint64  `json:"avg_score,omitempty"`
 		LastCompute int64   `json:"last_compute_time,omitempty"`
 
 		NumSkips   uint64        `json:"total_skips,omitempty"`
 		NumPlays   uint64        `json:"total_plays,omitempty"`
-		TotalScore float64       `json:"total_score,omitempty"`
+		TotalScore uint64        `json:"total_score,omitempty"`
 		TimePlayed time.Duration `json:"total_time_played,omitempty"`
 	}
 )
 
 var libDir = ""
 var maxSize = 25
-var mu sync.RWMutex
 
 //SetPlaylistMaxSize indicates to the player at what interval of played songs it should initiate computes.
 // if unspecified, the maxSize defaults to 25 songs
@@ -59,6 +59,14 @@ func SetLibraryDir(dir string) {
 	libDir = dir
 }
 
+func (lib *SongLibrary) NextSongFiles(num int) (s []SongFile) {
+	if num <= 0 {
+		return nil
+	}
+
+	return append(s, lib.Songs[lib.NextSong-1:lib.NextSong+num-1]...)
+}
+
 //Play begins the cycle of playing songs
 func (lib *SongLibrary) BeginPlaying() {
 	numSongs := len(lib.Songs)
@@ -73,9 +81,8 @@ func (lib *SongLibrary) BeginPlaying() {
 		maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
 	}
 
-	for !lib.Songs[lib.NextSong].Play() {
+	for !lib.Songs[lib.NextSong].play() {
 		if lib.NextSong >= maxSize {
-			//fmt.Println("end of playlist, time to calculate next song.")
 			lib.computeScores()
 			lib.computePlaylist()
 		}
@@ -149,14 +156,13 @@ func getSongs(dir string) {
 	}
 
 	if len(songs) > 0 {
-		mu.Lock()
+		lib.mu.Lock()
 		lib.Songs = append(lib.Songs, songs...)
-		mu.Unlock()
+		lib.mu.Unlock()
 	}
 }
 
 func (lib *SongLibrary) computePlaylist() {
-
 	if n := len(lib.Songs); maxSize > n {
 		maxSize = n
 	}
@@ -166,12 +172,23 @@ func (lib *SongLibrary) computePlaylist() {
 
 //Utilities for sorting the library of songs
 type byScore []SongFile
+
 func (b byScore) Len() int           { return len(b) }
 func (b byScore) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 func (b byScore) Less(i, j int) bool { return b[i].Score < b[j].Score }
 
+func (lib *SongLibrary) simpleCompute() {
+	lib.mu.Lock()
+	for i := 0; i < lib.NextSong; i++ {
+		lib.Songs[i].computeScore()
+	}
+	sort.Sort(sort.Reverse(byScore(lib.Songs)))
+	lib.NextSong = 0
+	lib.mu.Unlock()
+}
+
 func (lib *SongLibrary) computeScores() {
-	mu.Lock()
+	lib.mu.Lock()
 	lib.TotalTime = 0
 	lib.NumPlays = 0
 	lib.NumSkips = 0
@@ -196,14 +213,13 @@ func (lib *SongLibrary) computeScores() {
 
 	lib.AvgPlays = float64(lib.NumPlays) / float64(len(lib.Songs))
 	lib.AvgSkips = float64(lib.NumSkips) / float64(len(lib.Songs))
-	lib.AvgScore = lib.TotalScore / float64(len(lib.Songs))
+	lib.AvgScore = lib.TotalScore / uint64(len(lib.Songs))
 
 	lib.LastCompute = time.Now().Unix()
-
+	lib.NextSong = 0
 	//O(n*log(n))
 	sort.Sort(sort.Reverse(byScore(lib.Songs)))
-	mu.Unlock()
-	//fmt.Println("scores computed and sorted")
+	lib.mu.Unlock()
 }
 
 //Currently unused function, explicitly for
@@ -218,9 +234,9 @@ func (lib *SongLibrary) prune() {
 		}
 	}
 
-	mu.Lock()
+	lib.mu.Lock()
 	lib.Songs = songs
-	mu.Unlock()
-
 	lib.Pruned = true
+	lib.mu.Unlock()
+
 }

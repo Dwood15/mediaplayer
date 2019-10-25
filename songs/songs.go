@@ -15,13 +15,13 @@ import (
 
 type (
 	PlayInfo struct {
-		Score             float64 `json:"score,omitempty"`
-		TotalSkips        uint64  `json:"total_skips,omitempty"`
-		ConsecutiveSkips  float64 `json:"consecutive_skips,omitempty"`
-		LastSkipped       int64   `json:"last_skipped_time,omitempty"`
-		LastPlayed        int64   `json:"last_played_time,omitempty"`
-		TotalPlays        uint64  `json:"total_plays,omitempty"`
-		ComputesSincePlay uint8   `json:"computes_since_last_play,omitempty"`
+		Score             uint64 `json:"score,omitempty"`
+		TotalSkips        uint64 `json:"total_skips,omitempty"`
+		ConsecutiveSkips  uint   `json:"consecutive_skips,omitempty"`
+		LastSkipped       int64  `json:"last_skipped_time,omitempty"`
+		LastPlayed        int64  `json:"last_played_time,omitempty"`
+		TotalPlays        uint64 `json:"total_plays,omitempty"`
+		ComputesSincePlay uint8  `json:"computes_since_last_play,omitempty"`
 	}
 	SongFile struct {
 		FileName string        `json:"file_name,omitempty"`
@@ -30,7 +30,7 @@ type (
 	}
 	PlayingSong struct {
 		CurrentSong string
-		SongScore   float64
+		SongScore   uint64
 		SongLength  time.Duration
 	}
 )
@@ -40,6 +40,7 @@ const (
 	SignalPlay
 	SignalSkip
 	SignalExit
+	SignalSongComplete
 )
 
 //Cross-goroutine helpers
@@ -110,19 +111,21 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 	return
 }
 
-func (sF *SongFile) Play() (shouldExit bool) {
+//Play locks the current goroutine/thread until an interrupt
+func (sF *SongFile) play() (shouldExit bool) {
 	playMu.Lock()
-	defer playMu.Unlock()
 
 	s := sF.initFile()
 
 	//So we can pause songs
 	ctrl := &beep.Ctrl{
 		Paused:   false,
-		Streamer: s,
+		Streamer: beep.Seq(s, beep.Callback(func() { PlayerSignal <- SignalSongComplete })),
 	}
 
 	speaker.Play(ctrl)
+
+	defer playMu.Unlock()
 
 	var plyrSig int
 
@@ -130,7 +133,6 @@ func (sF *SongFile) Play() (shouldExit bool) {
 		select {
 		case <-time.After(75 * time.Millisecond):
 			SongTime.Store(format.SampleRate.D(s.Position()))
-			plyrSig = 0
 		case plyrSig = <-PlayerSignal:
 			//Signal the exit here, which will cause the done func up above to trigger and send
 			//the signalComplete signal. Hopefully, out of order event reception doesn't happen super often
@@ -140,6 +142,8 @@ func (sF *SongFile) Play() (shouldExit bool) {
 				fallthrough
 			case SignalSkip:
 				skipped.Store(!shouldExit)
+				fallthrough
+			case SignalSongComplete:
 				sF.onFinish(ctrl)
 				return
 			case SignalPause, SignalPlay:
@@ -175,15 +179,11 @@ func (sF *SongFile) onFinish(ctrl *beep.Ctrl) {
 	}
 	speaker.Unlock()
 
-	mu.Lock()
-	defer mu.Unlock()
+	lib.mu.Lock()
 
-	if skipped.Load() == nil {
-		sF.updatePlayed(ps)
-	} else {
-		sF.updateSkipped(ps)
-	}
+	sF.update(ps, skipped.Load().(bool))
 
+	lib.mu.Unlock()
 	SongTime.Store(time.Duration(0))
 	speaker.Clear()
 }
@@ -198,35 +198,35 @@ func (sF *SongFile) loadPlayTime() error {
 	if err != nil {
 		return err
 	}
-	defer streamer.Close()
 
 	sF.PlayTime = _fmt.SampleRate.D(streamer.Len())
-
+	_ = streamer.Close()
 	return nil
 }
 
-func (sF *SongFile) updateSkipped(s time.Time) {
-	sF.ConsecutiveSkips++
-	sF.TotalSkips++
-	sF.ComputesSincePlay = 0
-	sF.LastSkipped = time.Now().Unix()
-	lib.NumSkips++
-	lib.TimePlayed += time.Since(s)
-}
-
-func (sF *SongFile) updatePlayed(s time.Time) {
+func (sF *SongFile) update(s time.Time, skipped bool) {
+	if skipped {
+		sF.ConsecutiveSkips++
+		sF.TotalSkips++
+		sF.ComputesSincePlay = 0
+		sF.LastSkipped = time.Now().Unix()
+		lib.NumSkips++
+		lib.TimePlayed += time.Since(s)
+		return
+	}
 	sF.TotalPlays++
 	sF.LastPlayed = time.Now().Unix()
 	sF.ConsecutiveSkips = 0
 	sF.ComputesSincePlay = 0
 	lib.NumPlays++
 	lib.TimePlayed += time.Since(s)
+
 }
 
 func (pI *PlayInfo) computeSkipScore() bool {
 	//Compute the lastSkipped scores
 	if pI.LastSkipped > lib.LastCompute {
-		pI.Score -= 15 * (1 + pI.ConsecutiveSkips)
+		pI.Score -= 15 * uint64(1+pI.ConsecutiveSkips)
 
 		if pI.TotalSkips > uint64(math.Floor(lib.AvgSkips)) {
 			pI.Score -= 15
@@ -249,7 +249,7 @@ func (pI *PlayInfo) computeSkipScore() bool {
 func (pI *PlayInfo) computePlayScore() {
 	if pI.LastPlayed < lib.LastCompute {
 		pI.ComputesSincePlay++
-		pI.Score += 15 * float64(pI.ComputesSincePlay)
+		pI.Score += 15 * uint64(pI.ComputesSincePlay)
 	}
 
 	//We've just played the song, so we're going to drop its score somewhat.
@@ -262,11 +262,11 @@ func (pI *PlayInfo) computeScore() {
 	//give new songs some extra jitter.
 	if pI.Score == 0 {
 		//[0, numSongs]
-		pI.Score += math.Floor(float64(len(lib.Songs)) * rand.Float64())
+		pI.Score += uint64(math.Floor(float64(len(lib.Songs)) * rand.Float64()))
 	}
 
 	//[0, 5]
-	pI.Score += math.Floor(5 * rand.Float64())
+	pI.Score += uint64(math.Floor(5 * rand.Float64()))
 
 	if !pI.computeSkipScore() {
 		return
