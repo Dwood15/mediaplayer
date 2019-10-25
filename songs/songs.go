@@ -223,6 +223,7 @@ func (sF *SongFile) update(s time.Time, skipped bool) {
 
 }
 
+//computeSkipScore returns false if we should compute PlayScore
 func (pI *PlayInfo) computeSkipScore() bool {
 	//Compute the lastSkipped scores
 	if pI.LastSkipped > lib.LastCompute {

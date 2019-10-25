@@ -30,8 +30,10 @@ func (lib *SongLibrary) persistSelf() {
 
 func GetLibrary() *SongLibrary {
 	defer func() {
-		lib.simpleCompute()
-		lib.computePlaylist()
+		if n := len(lib.Songs); maxSize > n {
+			maxSize = n
+		}
+		lib.computeScores()
 	}()
 
 	if lib != nil {

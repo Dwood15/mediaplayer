@@ -84,7 +84,6 @@ func (lib *SongLibrary) BeginPlaying() {
 	for !lib.Songs[lib.NextSong].play() {
 		if lib.NextSong >= maxSize {
 			lib.computeScores()
-			lib.computePlaylist()
 		}
 
 		lib.NextSong++
@@ -162,14 +161,6 @@ func getSongs(dir string) {
 	}
 }
 
-func (lib *SongLibrary) computePlaylist() {
-	if n := len(lib.Songs); maxSize > n {
-		maxSize = n
-	}
-
-	lib.NextSong = 0
-}
-
 //Utilities for sorting the library of songs
 type byScore []SongFile
 
@@ -177,18 +168,14 @@ func (b byScore) Len() int           { return len(b) }
 func (b byScore) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 func (b byScore) Less(i, j int) bool { return b[i].Score < b[j].Score }
 
-func (lib *SongLibrary) simpleCompute() {
-	lib.mu.Lock()
-	for i := 0; i < lib.NextSong; i++ {
-		lib.Songs[i].computeScore()
-	}
-	sort.Sort(sort.Reverse(byScore(lib.Songs)))
-	lib.NextSong = 0
-	lib.mu.Unlock()
-}
-
 func (lib *SongLibrary) computeScores() {
 	lib.mu.Lock()
+
+	// Don't actually compute if we're just loading from a file
+	if lib.NumPlays > 0 &&  lib.NextSong < maxSize {
+		return
+	}
+
 	lib.TotalTime = 0
 	lib.NumPlays = 0
 	lib.NumSkips = 0
