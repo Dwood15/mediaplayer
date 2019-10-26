@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dwood15/mediaplayer/songs"
+	"github.com/dwood15/mediaplayer/songplayer"
 	"os"
 	"os/signal"
 	"runtime"
@@ -17,8 +17,8 @@ func init() {
 	}
 
 	cfg := loadConfig()
-	songs.SetLibraryDir(cfg.MusicDir)
-	songs.SetPlaylistMaxSize(cfg.MaxPlaylistSize)
+	songplayer.SetLibraryDir(cfg.MusicDir)
+	songplayer.SetPlaylistMaxSize(cfg.MaxPlaylistSize)
 	go handleShutdown()
 }
 
@@ -33,7 +33,7 @@ func main() {
 
 	go func() {
 		//BeginPlaying enters into an infinite loop
-		songs.GetLibrary().BeginPlaying()
+		songplayer.GetLibrary().BeginPlaying()
 	}()
 
 	launchUI()
@@ -46,7 +46,7 @@ func handleShutdown() {
 	<-quit
 
 	//Indicate to the player that we're about to GO DOWN
-	songs.PlayerSignal <- songs.SignalExit
+	songplayer.PlayerSignal <- songplayer.SignalExit
 
 	os.Exit(0)
 }

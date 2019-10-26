@@ -1,4 +1,4 @@
-package songs
+package songplayer
 
 import (
 	"fmt"

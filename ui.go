@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/dwood15/mediaplayer/songs"
+	"github.com/dwood15/mediaplayer/songplayer"
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
 	"time"
@@ -20,11 +20,11 @@ func gridView() *tview.Grid {
 		SetDrawFunc(drawTime)
 
 	return tview.NewGrid().
-		SetSize(1, 1, 15, 20).
+		SetSize(1, 1, 10, 10).
 		SetMinSize(10, 10).
 		SetBorders(true).
-		AddItem(newPrimitive("Header"), 0, 0, 1, 1, 5, 5, false).
-		AddItem(view, 1, 1, 1, 1, 5, 5, false)
+		AddItem(newPrimitive("Header"), 0, 0, 1, 1, 0, 0, false).
+		AddItem(view, 1, 1, 1, 1, 0, 0, false)
 }
 
 
@@ -44,11 +44,11 @@ func launchUI() {
 func musicPlayerSignal(e *tcell.EventKey) *tcell.EventKey {
 	switch e.Key() {
 	case tcell.KeyTAB:
-		songs.PlayerSignal <- songs.SignalSkip
+		songplayer.PlayerSignal <- songplayer.SignalSkip
 	case tcell.KeyEnter:
-		songs.PlayerSignal <- songs.SignalPause
+		songplayer.PlayerSignal <- songplayer.SignalPause
 	case tcell.KeyEsc:
-		songs.PlayerSignal <- songs.SignalExit
+		songplayer.PlayerSignal <- songplayer.SignalExit
 		app.Stop()
 	}
 
@@ -64,7 +64,7 @@ func fmtDuration(d time.Duration) string {
 }
 
 func drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, int, int, int) {
-	timeStr := fmtDuration(songs.SongTime.Load().(time.Duration))
+	timeStr := fmtDuration(songplayer.SongTime.Load().(time.Duration))
 	tview.Print(screen, timeStr, x, height/2, width, tview.AlignCenter, tcell.ColorTomato)
 	return x, y, width, height
 }
@@ -76,7 +76,7 @@ func refresh() {
 		select {
 		case <-tckr.C:
 			app.Draw()
-		case <-songs.SongState:
+		case <-songplayer.SongState:
 		}
 	}
 }

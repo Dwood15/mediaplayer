@@ -1,4 +1,4 @@
-package songs
+package songplayer
 
 import (
 	"github.com/faiface/beep"
@@ -145,13 +145,16 @@ func (sF *SongFile) play() (shouldExit bool) {
 			//Signal the exit here, which will cause the done func up above to trigger and send
 			//the signalComplete signal. Hopefully, out of order event reception doesn't happen super often
 			switch plyrSig {
+			case SignalSkip:
+				speaker.Clear()
+				goto closeShop
 			case SignalExit:
 				shouldExit = true
 				skipped.Store(false)
-			case SignalSkip, SignalSongComplete:
-				goto closeShop
 			case SignalPause, SignalPlay:
 				sF.togglePause(ctrl)
+			case SignalSongComplete:
+				goto closeShop
 			}
 			plyrSig = 0
 		}
@@ -196,7 +199,6 @@ func (sF *SongFile) onFinish(ctrl *beep.Ctrl, skipped bool) {
 
 	lib.mu.Unlock()
 	SongTime.Store(time.Duration(0))
-	speaker.Clear()
 }
 
 func (sF *SongFile) loadPlayTime() error {
