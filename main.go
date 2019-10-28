@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/dwood15/mediaplayer/songplayer"
+	"golang.org/x/sys/unix"
 	"os"
 	"os/signal"
 	"runtime"
+	"sync"
 	"syscall"
 )
 
@@ -22,7 +25,73 @@ func init() {
 	go handleShutdown()
 }
 
+func socTest() {
+	fd, sAU := songplayer.InitSock()
+
+	if fd < 0 || sAU == nil {
+		panic("initsock fail")
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	var nfd int
+
+	go func() {
+		defer wg.Done()
+		nfd = songplayer.ListenForConection(fd)
+
+		if nfd < 0 {
+			wg.Done()
+			panic("server listen for connection")
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		//time.Sleep(15 * time.Millisecond)
+
+		cfd := songplayer.OpenClientfd()
+
+		if cfd < 0 {
+			wg.Done() //force the server to be done
+			panic("client connection fails")
+		}
+
+		n, err := unix.Write(cfd, []byte("some data"))
+
+		if err != nil {
+			wg.Done() //force the server to be done
+			panic("writing to sock: " + unix.ErrnoName(err.(unix.Errno)))
+		}
+
+		if n == 0 {
+			wg.Done() //force the server to be done
+			panic("no bytes written")
+		}
+	}()
+
+	wg.Wait()
+
+	toread := make([]byte, 100)
+
+	n, _, err := unix.Recvfrom(nfd, toread, unix.MSG_DONTWAIT)
+
+	if err != nil {
+		panic("init sock srv read " + err.Error())
+	}
+
+	if n == 0 {
+		panic("no bytes rcvd from client")
+	}
+
+	fmt.Printf("read: %s\n", string(toread))
+}
+
+
 func main() {
+	socTest()
+
 	f, err := os.OpenFile("stderr.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)

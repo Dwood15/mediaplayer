@@ -8,7 +8,7 @@ import (
 
 const sockName = "/tmp/mediaplayer.sock"
 
-func InitSock() int {
+func InitSock() (int, *unix.SockaddrUnix) {
 	//ok if this fails - we're just clearing out the sock if it still exists.
 	_ = unix.Unlink(sockName)
 
@@ -73,33 +73,36 @@ func InitSock() int {
 
 	fmt.Println("flag found: ", flg)
 
-	return fd
+	return fd, sAU
 
 errOut:
 	syscall.Close(fd)
 	_ = syscall.Unlink(sockName)
-	return -1
+	return -1, nil
 }
 
 func ListenForConection(fd int) int {
 	var ok bool
 	var sAU *unix.SockaddrUnix
 
+	var loops int
 unixAccept:
 	nfd, sa, err := unix.Accept(fd)
 
 	if err != nil {
-		if !(err.(unix.Errno)).Temporary() {
+		if !(err.(unix.Errno)).Temporary() || loops > 10 {
 			goto errOut
 		}
 
+		err = nil
+		loops++
+		//<-time.After(1 * time.Millisecond)
 		goto unixAccept
 	}
 	goto done
 
 done:
 	if err != nil {
-
 		fmt.Println("LFC socket accept: ", err.Error())
 		goto errOut
 	}
@@ -107,7 +110,7 @@ done:
 	sAU, ok = sa.(*unix.SockaddrUnix)
 
 	if !ok {
-		fmt.Println("LFC connection, cast to unix socket")
+		fmt.Println("LFC connection, cast to unix socket fail")
 		goto errOut
 	}
 
@@ -119,8 +122,4 @@ errOut:
 	syscall.Close(fd)
 	//_ = syscall.Unlink(sAU.Name)
 	return -1
-}
-
-func LaunchServer() {
-
 }
