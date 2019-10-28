@@ -29,24 +29,24 @@ func gridView() *tview.Grid {
 
 var app = tview.NewApplication()
 
-func launchUI(fd int) {
-	go refresh()
+func launchUI(onInput chan int64, songState chan songplayer.PlayingSong) {
+	go refresh(songState)
 
 	app.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		switch e.Key() {
 		case tcell.KeyTAB:
-			inputSig <- songplayer.SignalSkip
+			onInput <- songplayer.SignalSkip
 		case tcell.KeyEnter:
-			inputSig <- songplayer.SignalPause
+			onInput <- songplayer.SignalPause
 		case tcell.KeyEsc:
-			inputSig <- songplayer.SignalExit
+			onInput <- songplayer.SignalExit
 			app.Stop()
 		}
 
 		return e
 	})
-	grid := gridView()
-	if err := app.SetRoot(grid, true).Run(); err != nil {
+
+	if err := app.SetRoot(gridView(), true).Run(); err != nil {
 		panic(err)
 	}
 }
@@ -65,14 +65,14 @@ func drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, in
 	return x, y, width, height
 }
 
-func refresh() {
+func refresh (ss chan songplayer.PlayingSong) {
 	tckr := time.NewTicker(25 * time.Millisecond)
 
 	for {
 		select {
 		case <-tckr.C:
 			app.Draw()
-		case <-songplayer.SongState:
+		case <-ss:
 		}
 	}
 }

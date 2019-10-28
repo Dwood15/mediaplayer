@@ -108,13 +108,19 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 		handleRcv()
 
 		if toSend != 0 {
+		trySend:
 			if err := unix.Sendto(fd, sendBuf, 0, c.Addr); err != nil {
-
+				if err.(unix.Errno).Temporary() {
+					handleRcv()
+					fmt.Println("handleRcv already happened, trying again")
+					time.Sleep(1 * time.Millisecond)
+					goto trySend
+				} else {
+					fmt.Println("non-temporary error trying to send")
+					panic(err)
+				}
 			}
 			toSend = 0
 		}
-
-		handleRcv()
-
 	}
 }
