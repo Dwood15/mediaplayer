@@ -29,7 +29,13 @@ func (lib *SongLibrary) persistSelf() {
 }
 
 //GetLibrary attempts to load the SongLibrary, for media-playing functionality.
-func GetLibrary() *SongLibrary {
+func GetLibrary(ps chan PlayingSong) *SongLibrary {
+	if ps == nil {
+		panic("playing song signal channel is required")
+	}
+
+	SongState = ps
+
 	defer func() {
 		if n := len(lib.Songs); maxSize > n {
 			maxSize = n
@@ -42,6 +48,7 @@ func GetLibrary() *SongLibrary {
 	}
 
 	lib = &SongLibrary{}
+
 
 	res, err := ioutil.ReadFile(cacheName)
 	if err == nil {

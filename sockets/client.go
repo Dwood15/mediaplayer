@@ -27,7 +27,9 @@ const sNIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.CurrentSong))
 const szOf = int(unsafe.Sizeof(songplayer.PlayingSong{}))
 
 var (
+	//as-of-yet-unused helpers for decoding structures
 	sortedIdxs = [3]fielded{{offset: ssIdx, t: 0}, {offset: slIdx, t: 1}, {offset: sNIdx, t: 2}}
+
 	idxOfSS    int
 	idxOfSL    int
 	idxOfSN    int

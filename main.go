@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dwood15/mediaplayer/sockets"
 	"github.com/dwood15/mediaplayer/songplayer"
+	"golang.org/x/sys/unix"
 	"os"
 	"os/signal"
 	"runtime"
@@ -27,7 +28,7 @@ func init() {
 const sockName = "/tmp/mediaplayer.sock"
 
 
-func amServ() {
+func amServ(sU chan songplayer.PlayingSong) {
 	fmt.Println("Client not found, assuming we're the server.")
 
 	srv := sockets.Server{
@@ -51,7 +52,7 @@ func amServ() {
 
 	go func() {
 		//BeginPlaying enters into an infinite loop
-		songplayer.GetLibrary().BeginPlaying()
+		songplayer.GetLibrary(sU).BeginPlaying()
 	}()
 }
 
@@ -60,9 +61,12 @@ func amUI(fd int) {
 }
 
 func main() {
-	fd := sockets.OpenClientfd(sockName)
-	if fd == -1 {
-		amServ()
+	uiInput := make(chan int64)
+	songUpdate := make(chan songplayer.PlayingSong)
+
+	c := sockets.Client{Addr:&unix.SockaddrUnix{Name:sockName}}
+	if err := c.LaunchClient(uiInput, songUpdate); err != nil {
+		amServ(songUpdate)
 		os.Exit(0)
 	}
 
@@ -75,7 +79,7 @@ func main() {
 	_ = syscall.Dup2(int(f.Fd()), 2)
 
 
-	launchUI(fd)
+	launchUI(uiInput, songUpdate)
 }
 
 func handleShutdown() {
