@@ -29,14 +29,14 @@ type (
 		PlayInfo
 	}
 	PlayingSong struct {
-		CurrentSong string
 		SongScore   uint64
 		SongLength  time.Duration
+		CurrentSong string
 	}
 )
 
 const (
-	SignalPause = iota + 1
+	SignalPause int64 = iota + 1
 	SignalPlay
 	SignalSkip
 	SignalExit
@@ -53,7 +53,7 @@ var (
 	SongTime atomic.Value
 
 	//PlayerSignal signals input state from the ui to the player
-	PlayerSignal = make(chan int)
+	PlayerSignal = make(chan int64)
 
 	//playMu is for ensuring only one song is playing
 	playMu sync.Mutex
@@ -133,7 +133,7 @@ func (sF *SongFile) play() (shouldExit bool) {
 
 	speaker.Play(ctrl)
 
-	var plyrSig int
+	var plyrSig int64
 
 	tkr := time.NewTicker(75 * time.Millisecond)
 

@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/dwood15/mediaplayer/sockets"
 	"github.com/dwood15/mediaplayer/songplayer"
-	"golang.org/x/sys/unix"
 	"os"
 	"os/signal"
 	"runtime"
-	"sync"
 	"syscall"
 )
 
@@ -25,72 +24,47 @@ func init() {
 	go handleShutdown()
 }
 
-func socTest() {
-	fd, sAU := songplayer.InitSock()
+const sockName = "/tmp/mediaplayer.sock"
 
-	if fd < 0 || sAU == nil {
-		panic("initsock fail")
+
+func amServ() {
+	fmt.Println("Client not found, assuming we're the server.")
+
+	srv := sockets.Server{
+		SockName: sockName,
+		OnConnect: func(cFD int, done chan bool) {
+			fmt.Println("client connection detected")
+
+			for {
+				select {
+				case <-done:
+					fmt.Println("close signal detected, closing connection")
+					return
+				}
+			}
+		},
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	var nfd int
+	if err := srv.LaunchServer(); err != nil {
+		panic("launchrvr: " + err.Error())
+	}
 
 	go func() {
-		defer wg.Done()
-		nfd = songplayer.ListenForConection(fd)
-
-		if nfd < 0 {
-			wg.Done()
-			panic("server listen for connection")
-		}
+		//BeginPlaying enters into an infinite loop
+		songplayer.GetLibrary().BeginPlaying()
 	}()
-
-	go func() {
-		defer wg.Done()
-		//time.Sleep(15 * time.Millisecond)
-
-		cfd := songplayer.OpenClientfd()
-
-		if cfd < 0 {
-			wg.Done() //force the server to be done
-			panic("client connection fails")
-		}
-
-		n, err := unix.Write(cfd, []byte("some data"))
-
-		if err != nil {
-			wg.Done() //force the server to be done
-			panic("writing to sock: " + unix.ErrnoName(err.(unix.Errno)))
-		}
-
-		if n == 0 {
-			wg.Done() //force the server to be done
-			panic("no bytes written")
-		}
-	}()
-
-	wg.Wait()
-
-	toread := make([]byte, 100)
-
-	n, _, err := unix.Recvfrom(nfd, toread, unix.MSG_DONTWAIT)
-
-	if err != nil {
-		panic("init sock srv read " + err.Error())
-	}
-
-	if n == 0 {
-		panic("no bytes rcvd from client")
-	}
-
-	fmt.Printf("read: %s\n", string(toread))
 }
 
+func amUI(fd int) {
+
+}
 
 func main() {
-	socTest()
+	fd := sockets.OpenClientfd(sockName)
+	if fd == -1 {
+		amServ()
+		os.Exit(0)
+	}
 
 	f, err := os.OpenFile("stderr.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -100,12 +74,8 @@ func main() {
 	//Attempt to redirect panics and regular stderr messages to stderr.log
 	_ = syscall.Dup2(int(f.Fd()), 2)
 
-	go func() {
-		//BeginPlaying enters into an infinite loop
-		songplayer.GetLibrary().BeginPlaying()
-	}()
 
-	launchUI()
+	launchUI(fd)
 }
 
 func handleShutdown() {

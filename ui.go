@@ -27,32 +27,28 @@ func gridView() *tview.Grid {
 		AddItem(view, 1, 1, 1, 1, 0, 0, false)
 }
 
+var app = tview.NewApplication()
 
-var app  = tview.NewApplication()
-
-func launchUI() {
-
+func launchUI(fd int) {
 	go refresh()
 
-	app.SetInputCapture(musicPlayerSignal)
+	app.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
+		switch e.Key() {
+		case tcell.KeyTAB:
+			inputSig <- songplayer.SignalSkip
+		case tcell.KeyEnter:
+			inputSig <- songplayer.SignalPause
+		case tcell.KeyEsc:
+			inputSig <- songplayer.SignalExit
+			app.Stop()
+		}
+
+		return e
+	})
 	grid := gridView()
 	if err := app.SetRoot(grid, true).Run(); err != nil {
 		panic(err)
 	}
-}
-
-func musicPlayerSignal(e *tcell.EventKey) *tcell.EventKey {
-	switch e.Key() {
-	case tcell.KeyTAB:
-		songplayer.PlayerSignal <- songplayer.SignalSkip
-	case tcell.KeyEnter:
-		songplayer.PlayerSignal <- songplayer.SignalPause
-	case tcell.KeyEsc:
-		songplayer.PlayerSignal <- songplayer.SignalExit
-		app.Stop()
-	}
-
-	return e
 }
 
 func fmtDuration(d time.Duration) string {
