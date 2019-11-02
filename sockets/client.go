@@ -14,6 +14,7 @@ import (
 	"github.com/dwood15/mediaplayer/songplayer"
 )
 
+//Client
 type Client struct {
 	Addr *unix.SockaddrUnix
 }
@@ -132,6 +133,6 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 			}
 		}
 	}()
-	
+
 	return nil
 }
