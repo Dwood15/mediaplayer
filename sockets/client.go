@@ -5,11 +5,13 @@ package sockets
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/dwood15/mediaplayer/songplayer"
-	"golang.org/x/sys/unix"
 	"sort"
 	"time"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
+
+	"github.com/dwood15/mediaplayer/songplayer"
 )
 
 type Client struct {
@@ -30,9 +32,9 @@ var (
 	//as-of-yet-unused helpers for decoding structures
 	sortedIdxs = [3]fielded{{offset: ssIdx, t: 0}, {offset: slIdx, t: 1}, {offset: sNIdx, t: 2}}
 
-	idxOfSS    int
-	idxOfSL    int
-	idxOfSN    int
+	idxOfSS int
+	idxOfSL int
+	idxOfSN int
 )
 
 type byScore [3]fielded
@@ -54,7 +56,30 @@ func init() {
 			idxOfSN = i
 		}
 	}
+}
 
+func handleRcv(fd int, rcvd []byte, onSongUpdate chan songplayer.PlayingSong) {
+	n, err := unix.Read(fd, rcvd)
+	if err != nil && !err.(unix.Errno).Temporary() {
+		panic("launch client: " + err.Error())
+	} else if n == -1 {
+		time.Sleep(1 * time.Millisecond)
+		return
+	}
+
+	fmt.Println("bytes Rcv'd: ", string(rcvd))
+	fmt.Printf("copied bytes [%d] vs: [%d] (size of struct)\n", n, szOf)
+
+	ss, _ := binary.Uvarint(rcvd[ssIdx : ssIdx+10 : szOf])
+	sl, _ := binary.Varint(rcvd[slIdx : slIdx+10])
+	sp := songplayer.PlayingSong{
+		SongScore:   ss,
+		SongLength:  time.Duration(sl),
+		CurrentSong: string(rcvd[sNIdx:]),
+	}
+
+	fmt.Printf("what I think the string would look like: [%s]", sp.CurrentSong)
+	onSongUpdate <- sp
 }
 
 //LaunchClient takes sockname
@@ -66,6 +91,7 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 	}
 
 	if err := unix.Connect(fd, c.Addr); err != nil {
+		fmt.Println("unix connect err")
 		_ = unix.Close(fd)
 		return err
 	}
@@ -74,46 +100,25 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 	sendBuf := make([]byte, 10)
 	rcvd := make([]byte, unsafe.Sizeof(songplayer.PlayingSong{}))
 
-	handleRcv := func() {
-		n, _, err := unix.Recvfrom(fd, rcvd, 0)
-		if err != nil && !err.(unix.Errno).Temporary() {
-			panic("launch client: " + err.Error())
-		} else if n == 0 {
-			return
-		}
-
-		fmt.Println("bytes Rcv'd: ", string(rcvd))
-
-		if n < szOf {
-			fmt.Printf("wow, copied byted [%d] != [%d] (size of struct):\n", n, szOf)
-		}
-
-		ss, _ := binary.Uvarint(rcvd[ssIdx : ssIdx+10 : szOf])
-		sl, _ := binary.Varint(rcvd[slIdx:10])
-		sp := songplayer.PlayingSong{
-			SongScore:  ss,
-			SongLength: time.Duration(sl),
-		}
-
-		fmt.Println("printing what I think the string would look like")
-		fmt.Println(string(rcvd[sNIdx:szOf]))
-		onSongUpdate <- sp
-	}
+	fmt.Println("Client now handling the recv loop")
 
 	for {
+		handleRcv(fd, rcvd, onSongUpdate)
+
 		select {
 		case toSend = <-onInput:
+			fmt.Println("found data to send")
 			binary.PutVarint(sendBuf, toSend)
-		case <-time.After(2 * time.Millisecond):
 		}
-
-		handleRcv()
 
 		if toSend != 0 {
 		trySend:
-			if err := unix.Sendto(fd, sendBuf, 0, c.Addr); err != nil {
+			fmt.Println("found data to send")
+			if _, err := unix.Write(fd, sendBuf); err != nil {
 				if err.(unix.Errno).Temporary() {
-					handleRcv()
+					fmt.Println("temp to send error, trying to recv first")
+
+					handleRcv(fd, rcvd, onSongUpdate)
 					fmt.Println("handleRcv already happened, trying again")
 					time.Sleep(1 * time.Millisecond)
 					goto trySend
@@ -125,4 +130,6 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 			toSend = 0
 		}
 	}
+
+	return nil
 }

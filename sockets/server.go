@@ -4,13 +4,13 @@ package sockets
 
 import (
 	"fmt"
-	"golang.org/x/sys/unix"
 	"syscall"
-	"time"
+
+	"golang.org/x/sys/unix"
 )
 
 type Server struct {
-	SockName        string
+	SockAddr        *unix.SockaddrUnix
 	OnConnect       func(int, chan bool)
 	shouldClose     bool
 	openConnections []chan bool
@@ -20,7 +20,7 @@ type Server struct {
 //when it notices a connection
 func (s *Server) LaunchServer() error {
 	//ok if this fails - we're just clearing out the sock if it still exists.
-	_ = unix.Unlink(s.SockName)
+	_ = unix.Unlink(s.SockAddr.Name)
 
 	fd, err := unix.Socket(unix.AF_LOCAL, unix.SOCK_STREAM|unix.SOCK_NONBLOCK, 0)
 
@@ -29,12 +29,12 @@ func (s *Server) LaunchServer() error {
 		return err
 	}
 
-	if err = unix.Bind(fd, &unix.SockaddrUnix{Name: s.SockName}); err != nil {
+	if err = unix.Bind(fd, s.SockAddr); err != nil {
 		return err
 	}
 
 	//ensure user-only rwx perms
-	if err = unix.Chmod(s.SockName, unix.S_IRWXU); err != nil {
+	if err = unix.Chmod(s.SockAddr.Name, unix.S_IRWXU); err != nil {
 		goto errOut
 	}
 
@@ -61,12 +61,13 @@ func (s *Server) LaunchServer() error {
 		fmt.Println("flag found: ", flg)
 	}
 
+	fmt.Println("launching listenForConnections goroutine")
 	go s.listenForConections(fd)
 	return nil
 
 errOut:
 	syscall.Close(fd)
-	_ = syscall.Unlink(s.SockName)
+	_ = syscall.Unlink(s.SockAddr.Name)
 	return err
 }
 
@@ -81,7 +82,8 @@ func (s *Server) listenForConections(fd int) {
 
 	var numOpen int
 
-	for waitFor := 1 * time.Millisecond; s.shouldClose == false; <-time.After(waitFor) {
+	fmt.Println("server is listening for connections")
+	for /*waitFor := 1 * time.Millisecond*/ ; s.shouldClose == false; /*<-time.After(waitFor)*/ {
 		nfd, _, err := unix.Accept(fd)
 
 		if err == nil {
@@ -89,10 +91,12 @@ func (s *Server) listenForConections(fd int) {
 			numOpen++
 			go func() {
 				defer unix.Close(nfd)
+				fmt.Println("launching client connection")
 				s.OnConnect(nfd, conn)
 				onConnClose <- true
 			}()
 			s.openConnections = append(s.openConnections, conn)
+			fmt.Println("connection found and added to the open slice")
 			continue
 		}
 
@@ -100,13 +104,15 @@ func (s *Server) listenForConections(fd int) {
 			panic("non-temporary error received")
 		}
 
-		if numOpen > 0 && waitFor < 2*time.Second {
-			waitFor += 3 * time.Millisecond
-		}
+		//if numOpen > 0 && waitFor < 1*time.Second {
+		//	waitFor += 1 * time.Microsecond
+		//}
 
-		select {
-		case <-onConnClose:
-			numOpen--
-		}
+		//select {
+		//case <-onConnClose:
+		//	fmt.Println("connection close detected")
+		//	numOpen--
+		//}
 	}
+	fmt.Println("closing server listenForConnections loop")
 }

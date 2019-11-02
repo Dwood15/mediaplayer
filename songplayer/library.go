@@ -83,12 +83,15 @@ func (lib *SongLibrary) BeginPlaying() {
 		maxSize = int(math.Floor(0.01*float64(len(lib.Songs)))) + 1
 	}
 
+	fmt.Println("beginning to play songs.")
 	for !lib.Songs[lib.NextSong].play() {
 		if lib.NextSong >= maxSize {
+			fmt.Println("server computing scores")
 			lib.computeScores()
 		}
 
 		lib.NextSong++
+		fmt.Println("server persisting self")
 		lib.persistSelf()
 	}
 }

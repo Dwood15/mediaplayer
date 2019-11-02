@@ -1,9 +1,7 @@
 package songplayer
 
 import (
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/mp3"
-	"github.com/faiface/beep/speaker"
+	"fmt"
 	"math"
 	"math/rand"
 	"os"
@@ -11,6 +9,10 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/speaker"
 )
 
 type (
@@ -95,6 +97,7 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 	//buf.Append(s)
 	//s = buf.Streamer(0, buf.Len())
 
+	fmt.Println("sending song state to server process")
 	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
 	SongState <- PlayingSong{
 		CurrentSong: path.Base(sF.FileName),
@@ -102,14 +105,18 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 		SongScore:   sF.Score,
 	}
 
-	return
+	return s
 }
 
 //Play locks the current goroutine/thread until an interrupt
 func (sF *SongFile) play() (shouldExit bool) {
 	playMu.Lock()
 
+	fmt.Println("initializing song file")
+
 	s := sF.initFile()
+
+	fmt.Println("song file initialized, initializing player")
 
 	var skipped atomic.Value
 	skipped.Store(false)
@@ -127,6 +134,8 @@ func (sF *SongFile) play() (shouldExit bool) {
 		})),
 	}
 
+	//fmt.Println("initiating play for song: " + sF.FileName)
+
 	timePaused.Store(time.Time{})
 	//So we know when the song started.
 	playStart.Store(time.Now())
@@ -134,7 +143,6 @@ func (sF *SongFile) play() (shouldExit bool) {
 	speaker.Play(ctrl)
 
 	var plyrSig int64
-
 	tkr := time.NewTicker(75 * time.Millisecond)
 
 	for {

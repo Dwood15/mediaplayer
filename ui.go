@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/dwood15/mediaplayer/songplayer"
+	"time"
+
 	"github.com/gdamore/tcell"
 	"github.com/rivo/tview"
-	"time"
+
+	"github.com/dwood15/mediaplayer/songplayer"
 )
 
 func gridView() *tview.Grid {
@@ -65,7 +67,7 @@ func drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, in
 	return x, y, width, height
 }
 
-func refresh (ss chan songplayer.PlayingSong) {
+func refresh(ss chan songplayer.PlayingSong) {
 	tckr := time.NewTicker(25 * time.Millisecond)
 
 	for {

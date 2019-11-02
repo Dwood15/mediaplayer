@@ -2,6 +2,7 @@ package songplayer
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -61,6 +62,7 @@ func GetLibrary(ps chan PlayingSong) *SongLibrary {
 		panic(err)
 	}
 
+	fmt.Println("Library cache not found - loading from library dir")
 	lib.LoadFromFiles()
 
 	return lib
