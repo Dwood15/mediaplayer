@@ -96,40 +96,42 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 		return err
 	}
 
-	var toSend int64
-	sendBuf := make([]byte, 10)
-	rcvd := make([]byte, unsafe.Sizeof(songplayer.PlayingSong{}))
+	go func() {
+		var toSend int64
+		sendBuf := make([]byte, 10)
+		rcvd := make([]byte, unsafe.Sizeof(songplayer.PlayingSong{})+32)
 
-	fmt.Println("Client now handling the recv loop")
+		fmt.Println("Client now handling the recv loop")
 
-	for {
-		handleRcv(fd, rcvd, onSongUpdate)
+		for {
+			handleRcv(fd, rcvd, onSongUpdate)
 
-		select {
-		case toSend = <-onInput:
-			fmt.Println("found data to send")
-			binary.PutVarint(sendBuf, toSend)
-		}
-
-		if toSend != 0 {
-		trySend:
-			fmt.Println("found data to send")
-			if _, err := unix.Write(fd, sendBuf); err != nil {
-				if err.(unix.Errno).Temporary() {
-					fmt.Println("temp to send error, trying to recv first")
-
-					handleRcv(fd, rcvd, onSongUpdate)
-					fmt.Println("handleRcv already happened, trying again")
-					time.Sleep(1 * time.Millisecond)
-					goto trySend
-				} else {
-					fmt.Println("non-temporary error trying to send")
-					panic(err)
-				}
+			select {
+			case toSend = <-onInput:
+				fmt.Println("found data to send")
+				binary.PutVarint(sendBuf, toSend)
 			}
-			toSend = 0
-		}
-	}
 
+			if toSend != 0 {
+			trySend:
+				fmt.Println("found data to send")
+				if _, err := unix.Write(fd, sendBuf); err != nil {
+					if err.(unix.Errno).Temporary() {
+						fmt.Println("temp to send error, trying to recv first")
+
+						handleRcv(fd, rcvd, onSongUpdate)
+						fmt.Println("handleRcv already happened, trying again")
+						time.Sleep(1 * time.Millisecond)
+						goto trySend
+					} else {
+						fmt.Println("non-temporary error trying to send")
+						panic(err)
+					}
+				}
+				toSend = 0
+			}
+		}
+	}()
+	
 	return nil
 }

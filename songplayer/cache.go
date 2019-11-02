@@ -50,7 +50,6 @@ func GetLibrary(ps chan PlayingSong) *SongLibrary {
 
 	lib = &SongLibrary{}
 
-
 	res, err := ioutil.ReadFile(cacheName)
 	if err == nil {
 		if err = json.Unmarshal(res, lib); err == nil {

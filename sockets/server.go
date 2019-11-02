@@ -83,7 +83,7 @@ func (s *Server) listenForConections(fd int) {
 	var numOpen int
 
 	fmt.Println("server is listening for connections")
-	for /*waitFor := 1 * time.Millisecond*/ ; s.shouldClose == false; /*<-time.After(waitFor)*/ {
+	for /*waitFor := 1 * time.Millisecond*/ s.shouldClose == false /*<-time.After(waitFor)*/ {
 		nfd, _, err := unix.Accept(fd)
 
 		if err == nil {
