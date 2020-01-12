@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/gdamore/tcell"
@@ -10,7 +11,7 @@ import (
 	"github.com/dwood15/mediaplayer/songplayer"
 )
 
-func gridView() *tview.Grid {
+func (u *UIController) gridView() *tview.Grid {
 	newPrimitive := func(text string) tview.Primitive {
 		return tview.NewTextView().
 			SetTextAlign(tview.AlignCenter).
@@ -19,7 +20,7 @@ func gridView() *tview.Grid {
 
 	view := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
-		SetDrawFunc(drawTime)
+		SetDrawFunc(u.drawTime)
 
 	return tview.NewGrid().
 		SetSize(1, 1, 10, 10).
@@ -31,24 +32,40 @@ func gridView() *tview.Grid {
 
 var app = tview.NewApplication()
 
-func launchUI(onInput chan int64, songState chan songplayer.PlayingSong) {
-	go refresh(songState)
+type UIController struct {
+	SongState    *atomic.Value
+	InputChan    chan int64
+	currentState songplayer.PlayingSong
+}
+
+func (u *UIController) launchUI() {
+	go func() {
+		tckr := time.NewTicker(25 * time.Millisecond)
+
+		for {
+			select {
+			case <-tckr.C:
+				u.currentState = u.SongState.Load().(songplayer.PlayingSong)
+				app.Draw()
+			}
+		}
+	}()
 
 	app.SetInputCapture(func(e *tcell.EventKey) *tcell.EventKey {
 		switch e.Key() {
 		case tcell.KeyTAB:
-			onInput <- songplayer.SignalSkip
+			u.InputChan <- songplayer.SignalSkip
 		case tcell.KeyEnter:
-			onInput <- songplayer.SignalPause
+			u.InputChan <- songplayer.SignalPause
 		case tcell.KeyEsc:
-			onInput <- songplayer.SignalExit
+			u.InputChan <- songplayer.SignalExit
 			app.Stop()
 		}
 
 		return e
 	})
 
-	if err := app.SetRoot(gridView(), true).Run(); err != nil {
+	if err := app.SetRoot(u.gridView(), true).Run(); err != nil {
 		panic(err)
 	}
 }
@@ -61,20 +78,10 @@ func fmtDuration(d time.Duration) string {
 	return fmt.Sprintf("%02d:%02d", m, s)
 }
 
-func drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, int, int, int) {
-	timeStr := fmtDuration(songplayer.SongTime.Load().(time.Duration))
-	tview.Print(screen, timeStr, x, height/2, width, tview.AlignCenter, tcell.ColorTomato)
+func (u *UIController) drawTime(screen tcell.Screen, x int, y int, width int, height int) (int, int, int, int) {
+	timeStr := fmtDuration(u.currentState.SongTime) + " / " + fmtDuration(u.currentState.SongLength)
+	ht := height / 2
+	tview.Print(screen, timeStr, x, ht, width, tview.AlignCenter, tcell.ColorTomato)
+	tview.Print(screen, u.currentState.CurrentSong, x, ht+1, width, tview.AlignCenter, tcell.ColorTomato)
 	return x, y, width, height
-}
-
-func refresh(ss chan songplayer.PlayingSong) {
-	tckr := time.NewTicker(25 * time.Millisecond)
-
-	for {
-		select {
-		case <-tckr.C:
-			app.Draw()
-		case <-ss:
-		}
-	}
 }

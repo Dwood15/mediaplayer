@@ -3,9 +3,11 @@
 package sockets
 
 import (
-	"encoding/binary"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"sort"
+	"sync/atomic"
 	"time"
 	"unsafe"
 
@@ -16,7 +18,8 @@ import (
 
 //Client
 type Client struct {
-	Addr *unix.SockaddrUnix
+	Addr            *unix.SockaddrUnix
+	ServerSongState *atomic.Value
 }
 
 type fielded struct {
@@ -24,6 +27,7 @@ type fielded struct {
 	t      int
 }
 
+const stIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.SongTime))
 const ssIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.SongScore))
 const slIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.SongLength))
 const sNIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.CurrentSong))
@@ -59,32 +63,46 @@ func init() {
 	}
 }
 
-func handleRcv(fd int, rcvd []byte, onSongUpdate chan songplayer.PlayingSong) {
+func (c *Client) handleRcv(fd int, rcvd []byte) {
 	n, err := unix.Read(fd, rcvd)
 	if err != nil && !err.(unix.Errno).Temporary() {
 		panic("launch client: " + err.Error())
 	} else if n == -1 {
-		time.Sleep(1 * time.Millisecond)
+		//	time.Sleep(1 * time.Millisecond)
 		return
 	}
 
-	fmt.Println("bytes Rcv'd: ", string(rcvd))
-	fmt.Printf("copied bytes [%d] vs: [%d] (size of struct)\n", n, szOf)
+	//fmt.Println("bytes Rcv'd: ", string(rcvd))
+	//fmt.Printf("copied bytes [%d] vs: [%d] (size of struct)\n", n, szOf)
 
-	ss, _ := binary.Uvarint(rcvd[ssIdx : ssIdx+10 : szOf])
-	sl, _ := binary.Varint(rcvd[slIdx : slIdx+10])
-	sp := songplayer.PlayingSong{
-		SongScore:   ss,
-		SongLength:  time.Duration(sl),
-		CurrentSong: string(rcvd[sNIdx:]),
+	//st, _ := binary.Varint(rcvd[stIdx : stIdx+10 : szOf])
+	//ss, _ := binary.Uvarint(rcvd[ssIdx : ssIdx+10 : szOf])
+	//sl, _ := binary.Varint(rcvd[slIdx : slIdx+10])
+	sp := songplayer.PlayingSong{}
+
+	/* QUARANTINE SECTION */
+	//THIS SECTION OF CODE IS INCREDIBLY FINNICKY, AND I HAVEN'T
+	// SPENT TIME TO FIGURE OUT HOW TO MAKE IT ROBUST...
+	// CONSIDER WRITING SOME UNIT TESTS OR MAKING INCREDIBLY MINOR
+	// CHANGES BETWEEN TESTS
+	rcv := bytes.Trim(rcvd, "\x00")
+
+	err = json.Unmarshal(rcv, &sp)
+
+	if err != nil {
+		panic("json unmarshalling err: " + err.Error())
 	}
 
-	fmt.Printf("what I think the string would look like: [%s]", sp.CurrentSong)
-	onSongUpdate <- sp
+	c.ServerSongState.Store(sp)
+	/*END QUARANTINE SECTION */
 }
 
 //LaunchClient takes sockname
-func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.PlayingSong) error {
+func (c *Client) LaunchClient(onInput chan int64) error {
+	if c.ServerSongState == nil {
+		panic("ServerSongState atomic value must not be nil")
+	}
+
 	fd, err := unix.Socket(unix.AF_LOCAL, unix.SOCK_STREAM|unix.SOCK_NONBLOCK, 0)
 
 	if err != nil {
@@ -92,7 +110,7 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 	}
 
 	if err := unix.Connect(fd, c.Addr); err != nil {
-		fmt.Println("unix connect err")
+		fmt.Println("unix connect err: " + err.Error())
 		_ = unix.Close(fd)
 		return err
 	}
@@ -100,18 +118,23 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 	go func() {
 		var toSend int64
 		sendBuf := make([]byte, 10)
-		rcvd := make([]byte, unsafe.Sizeof(songplayer.PlayingSong{})+32)
+		rcvd := make([]byte, unsafe.Sizeof(songplayer.PlayingSong{})+128)
 
 		fmt.Println("Client now handling the recv loop")
 
 		for {
-			handleRcv(fd, rcvd, onSongUpdate)
+			c.handleRcv(fd, rcvd)
 
-			select {
-			case toSend = <-onInput:
-				fmt.Println("found data to send")
-				binary.PutVarint(sendBuf, toSend)
+			//clear rcvd - this should help us avoid strange marshalling errors
+			for i := 0; i < len(rcvd); i++ {
+				rcvd[i] = 0
 			}
+
+			//select {
+			//case toSend = <-onInput:
+			//	fmt.Println("found data to send")
+			//	binary.PutVarint(sendBuf, toSend)
+			//}
 
 			if toSend != 0 {
 			trySend:
@@ -120,7 +143,7 @@ func (c *Client) LaunchClient(onInput chan int64, onSongUpdate chan songplayer.P
 					if err.(unix.Errno).Temporary() {
 						fmt.Println("temp to send error, trying to recv first")
 
-						handleRcv(fd, rcvd, onSongUpdate)
+						c.handleRcv(fd, rcvd)
 						fmt.Println("handleRcv already happened, trying again")
 						time.Sleep(1 * time.Millisecond)
 						goto trySend

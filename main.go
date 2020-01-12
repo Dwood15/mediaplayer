@@ -1,11 +1,12 @@
 package main
 
 import (
-	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
 	"runtime"
+	"sync/atomic"
 	"syscall"
 	"time"
 	"unsafe"
@@ -32,6 +33,7 @@ func init() {
 
 const sockName = "/tmp/mediaplayer.sock"
 
+const stIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.SongTime))
 const ssIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.SongScore))
 const slIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.SongLength))
 const sNIdx = int(unsafe.Offsetof(songplayer.PlayingSong{}.CurrentSong))
@@ -50,7 +52,7 @@ func isClosed(fd int) bool {
 	return n == 0
 }
 
-func amServ(sU chan songplayer.PlayingSong) {
+func amServ() {
 	fmt.Println("Client not found, assuming we're the server.")
 
 	addr := &unix.SockaddrUnix{Name: sockName}
@@ -60,22 +62,36 @@ func amServ(sU chan songplayer.PlayingSong) {
 		OnConnect: func(cFD int, done chan bool) {
 			fmt.Println("client connection made!")
 
-			bytesToSend := make([]byte, unsafe.Sizeof(songplayer.PlayingSong{})+32)
-
 			for {
 				select {
-				case ss := <-sU:
-					binary.PutUvarint(bytesToSend[ssIdx:ssIdx+10:szOf], ss.SongScore)
-					binary.PutVarint(bytesToSend[slIdx:slIdx+10:szOf], int64(ss.SongLength))
-					n := copy(bytesToSend[sNIdx:], ss.CurrentSong)
+				case ss := <-songplayer.SongState:
 
-					fmt.Printf("num bytes Copied to toSend slice: [%d]\n", n)
 
-					if n, err := unix.Write(cFD, bytesToSend); err != nil {
-						fmt.Printf("non-nil err when attempting sendTo: %v\n", err)
-					} else {
-						fmt.Printf("[%d] Bytes written in our attempt to send\n", n)
+					//binary.PutVarint(bytesToSend[stIdx:stIdx+10:szOf], int64(ss.SongTime))
+					//binary.PutUvarint(bytesToSend[ssIdx:ssIdx+10:szOf], ss.SongScore)
+					//binary.PutVarint(bytesToSend[slIdx:slIdx+10:szOf], int64(ss.SongLength))
+					//
+					//copy(bytesToSend[sNIdx:], ss.CurrentSong)
+
+					//fmt.Printf("num bytes Copied to toSend slice: [%d]\n", n)
+
+					/* QUARANTINE SECTION */
+					//THIS SECTION OF CODE IS INCREDIBLY FINNICKY, AND I HAVEN'T
+					// SPENT TIME TO FIGURE OUT HOW TO MAKE IT ROBUST...
+					// CONSIDER WRITING SOME UNIT TESTS OR MAKING INCREDIBLY MINOR
+					// CHANGES BETWEEN TESTS
+					bytesToSend, _ := json.Marshal(ss)
+
+					if len(bytesToSend) > szOf + 128 {
+						fmt.Println("WARNING: NUMBER OF BYTES LARGER THAN CLIENT EXPECTS: ", len(bytesToSend))
 					}
+
+					if _, err := unix.Write(cFD, bytesToSend); err != nil {
+						fmt.Printf("non-nil err when attempting sendTo: %v\n", err)
+					}
+					//SEE ALSO: sockets/client.go
+					/* QUARANTINE SECTION */
+
 				case <-done:
 					fmt.Println("close signal detected, closing connection")
 					return
@@ -89,31 +105,37 @@ func amServ(sU chan songplayer.PlayingSong) {
 		},
 	}
 
-	if err := srv.LaunchServer(); err != nil {
-		panic("launchsrvr: " + err.Error())
-	}
+	go func() {
+		if err := srv.LaunchServer(); err != nil {
+			panic("launchsrvr: " + err.Error())
+		}
+	}()
 
+	time.Sleep(1 * time.Second)
 	fmt.Println("loading library and preparing to play")
 	fmt.Println("server will wait for incoming connection before playing")
 	//BeginPlaying enters into an infinite loop
-	songplayer.GetLibrary(sU).BeginPlaying()
-}
-
-func amUI(fd int) {
-
+	songplayer.GetLibrary().BeginPlaying()
 }
 
 var uiInput = make(chan int64)
-var serverSongUpdate = make(chan songplayer.PlayingSong)
+var state = new(atomic.Value)
 
 func main() {
-	c := sockets.Client{Addr: &unix.SockaddrUnix{Name: sockName}}
+	state.Store(songplayer.PlayingSong{})
+
+	c := sockets.Client{
+		Addr:            &unix.SockaddrUnix{Name: sockName},
+		ServerSongState: state,
+	}
 
 	fmt.Println("attempting to launch ui client")
-	if err := c.LaunchClient(uiInput, serverSongUpdate); err != nil {
-		amServ(serverSongUpdate)
+	if err := c.LaunchClient(uiInput); err != nil {
+		amServ()
 		os.Exit(0)
 	}
+
+	time.Sleep(7 * time.Second)
 
 	f, err := os.OpenFile("stderr.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -123,9 +145,12 @@ func main() {
 	//Attempt to redirect panics and regular stderr messages to stderr.log
 	_ = syscall.Dup2(int(f.Fd()), 2)
 
-	time.Sleep(5 * time.Second)
+	uiC := UIController{
+		SongState: state,
+		InputChan: uiInput,
+	}
 
-	launchUI(uiInput, serverSongUpdate)
+	uiC.launchUI()
 }
 
 func handleShutdown() {

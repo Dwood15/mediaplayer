@@ -57,11 +57,9 @@ func (s *Server) LaunchServer() error {
 			fmt.Println("checking for blocking socket - unblocked sock")
 			goto errOut
 		}
-
-		fmt.Println("flag found: ", flg)
 	}
 
-	fmt.Println("launching listenForConnections goroutine")
+	//fmt.Println("launching listenForConnections goroutine")
 	go s.listenForConections(fd)
 	return nil
 

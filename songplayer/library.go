@@ -25,7 +25,7 @@ type (
 
 	//LibInfo Provides metadata and basic statistics around the player state
 	LibInfo struct {
-		AvgPlays    float64 `json:"avg_plays,omitempty"`
+		AvgPlays    uint64 `json:"avg_plays,omitempty"`
 		AvgSkips    float64 `json:"avg_skips,omitempty"`
 		AvgScore    uint64  `json:"avg_score,omitempty"`
 		LastCompute int64   `json:"last_compute_time,omitempty"`
@@ -196,7 +196,14 @@ func (lib *SongLibrary) computeScores() {
 		lib.NumPlays += lib.Songs[i].TotalPlays
 		lib.TotalTime += lib.Songs[i].PlayTime
 		lib.NumSkips += lib.Songs[i].TotalSkips
+	}
 
+	lib.AvgPlays = uint64(float64(lib.NumPlays) / float64(len(lib.Songs)))
+	lib.AvgSkips = float64(lib.NumSkips) / float64(len(lib.Songs))
+	lib.AvgScore = lib.TotalScore / uint64(len(lib.Songs))
+
+	//Avg Score will lag behind, but at least with a second pass, we'll have an average.
+	for i := 0; i < len(lib.Songs); i++ {
 		lib.Songs[i].computeScore()
 		// we only care about the scores of songs that are positive.
 		if lib.Songs[i].Score > 0 {
@@ -204,9 +211,7 @@ func (lib *SongLibrary) computeScores() {
 		}
 	}
 
-	lib.AvgPlays = float64(lib.NumPlays) / float64(len(lib.Songs))
-	lib.AvgSkips = float64(lib.NumSkips) / float64(len(lib.Songs))
-	lib.AvgScore = lib.TotalScore / uint64(len(lib.Songs))
+
 
 	lib.LastCompute = time.Now().Unix()
 	lib.NextSong = 0

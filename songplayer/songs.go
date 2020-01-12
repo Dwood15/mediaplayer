@@ -26,11 +26,13 @@ type (
 		ComputesSincePlay uint8  `json:"computes_since_last_play,omitempty"`
 	}
 	SongFile struct {
-		FileName string        `json:"file_name,omitempty"`
-		PlayTime time.Duration `json:"play_time,omitempty"`
+		FileName    string        `json:"file_name,omitempty"`
+		PlayTime    time.Duration `json:"play_time,omitempty"`
+		playingSong PlayingSong
 		PlayInfo
 	}
 	PlayingSong struct {
+		SongTime    time.Duration
 		SongScore   uint64
 		SongLength  time.Duration
 		CurrentSong string
@@ -46,13 +48,8 @@ const (
 )
 
 //Cross-goroutine helpers
-
-//SongState indicates what song is playing
 var (
 	SongState = make(chan PlayingSong)
-
-	//SongTime indicates how far we've progressed in the song
-	SongTime atomic.Value
 
 	//PlayerSignal signals input state from the ui to the player
 	PlayerSignal = make(chan int64)
@@ -64,10 +61,6 @@ var (
 	timePaused atomic.Value
 	format     beep.Format
 )
-
-func init() {
-	SongTime.Store(time.Duration(0))
-}
 
 func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 	//Load the song file
@@ -97,14 +90,6 @@ func (sF *SongFile) initFile() (s beep.StreamSeeker) {
 	//buf.Append(s)
 	//s = buf.Streamer(0, buf.Len())
 
-	fmt.Println("sending song state to server process")
-	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
-	SongState <- PlayingSong{
-		CurrentSong: path.Base(sF.FileName),
-		SongLength:  sF.PlayTime,
-		SongScore:   sF.Score,
-	}
-
 	return s
 }
 
@@ -115,6 +100,17 @@ func (sF *SongFile) play() (shouldExit bool) {
 	fmt.Println("initializing song file")
 
 	s := sF.initFile()
+
+	//Signal to the ui what's playing. Perhaps an atomic.Value would be better?
+	sF.playingSong = PlayingSong{
+		CurrentSong: path.Base(sF.FileName),
+		SongLength:  sF.PlayTime,
+		SongScore:   sF.Score,
+	}
+
+	fmt.Println("sending song to client: " + sF.playingSong.CurrentSong)
+
+	SongState <- sF.playingSong
 
 	fmt.Println("song file initialized, initializing player")
 
@@ -148,7 +144,8 @@ func (sF *SongFile) play() (shouldExit bool) {
 	for {
 		select {
 		case <-tkr.C:
-			SongTime.Store(format.SampleRate.D(s.Position()))
+			sF.playingSong.SongTime = format.SampleRate.D(s.Position())
+			SongState <- sF.playingSong
 		case plyrSig = <-PlayerSignal:
 			//Signal the exit here, which will cause the done func up above to trigger and send
 			//the signalComplete signal. Hopefully, out of order event reception doesn't happen super often
@@ -206,7 +203,8 @@ func (sF *SongFile) onFinish(ctrl *beep.Ctrl, skipped bool) {
 	sF.update(ps, skipped)
 
 	lib.mu.Unlock()
-	SongTime.Store(time.Duration(0))
+
+	sF.playingSong.SongTime = 0
 }
 
 func (sF *SongFile) loadPlayTime() error {
@@ -264,7 +262,7 @@ func (pI *PlayInfo) computeSkipScore() bool {
 	}
 
 	//give the skipped songs a bit of attrition
-	pI.Score += 5
+	pI.Score += 1
 	return true
 }
 
@@ -274,9 +272,9 @@ func (pI *PlayInfo) computePlayScore() {
 		pI.Score += 15 * uint64(pI.ComputesSincePlay)
 	}
 
-	//We've just played the song, so we're going to drop its score somewhat.
-	if pI.LastPlayed > lib.LastCompute && pI.Score > lib.AvgScore {
-		pI.Score -= (pI.Score - lib.AvgScore) / 2
+	//We've just played the song, so we're going to drop its score.
+	if pI.TotalPlays > lib.AvgPlays || pI.Score > lib.AvgScore {
+		pI.Score -= lib.AvgScore / 4
 	}
 }
 
