@@ -59,7 +59,18 @@ type (
 			Value      int       // Value: the current number of this key in inventory
 		}
 	}
+
+	//TODO: Move back to graph.go
+	//I have no idea what I'm doing here.. this isn't a graph, more like a pre-graph :V
+	NodeGraph map[NodeName]Node
+
+	PlayerSimulator struct {
+		Keys  map[KeyName]Key //Items which the player has in their inventory at this time.
+		Graph NodeGraph
+	}
 )
+
+//Implementation-detail stubs
 
 var AllNodeClasses = NodeClasses{OneWayPortal, TwoWayPortal, SingleGive, ToggleGive}
 var AllActions = Actions{Give, Teleport, GiveAndTeleport}

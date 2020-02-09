@@ -5,15 +5,6 @@ import (
 	"io/ioutil"
 )
 
-type (
-	NodeGraph map[NodeName]Node
-
-	PlayerSimulator struct {
-		Keys  map[KeyName]Key //Items which are considered "impossible" to remove from the pool
-		Graph NodeGraph
-	}
-)
-
 func LoadKeyPool(filename string) (keys []Key) {
 	b, err := ioutil.ReadFile(filename)
 	if err != nil {
