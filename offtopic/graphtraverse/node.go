@@ -76,7 +76,7 @@ type (
 
 var AllNodeClasses = NodeClasses{OneWayPortal, TwoWayPortal, SingleGive, ToggleGive}
 var AllActions = Actions{Give, Teleport, GiveAndTeleport}
-var AllKeyActions = KeyActions{OnUseDecrement, OnUseDoNothing, OnUseTeleport}
+var AllKeyActions = KeyActions{OnUseDecrement, OnUseDoNothing, OnUseTeleport, ""}
 
 //Major helper funcs
 func (n *Node) CanVisit(keysHeld map[KeyName]Key) bool {
@@ -146,7 +146,7 @@ func (k *Key) Validate() error {
 	}
 
 	if !AllKeyActions.Contains(string(k.State.Action)) {
-		return fmt.Errorf("key action [%s] is in valid must be from predeclared list", k.State.Action)
+		return fmt.Errorf("key action: [%s] is invalid. must be from predeclared list", k.State.Action)
 	}
 
 	if k.State.Action == OnUseTeleport && len(k.State.TeleportTo) == 0 {
