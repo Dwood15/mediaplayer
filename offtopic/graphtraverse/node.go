@@ -5,17 +5,19 @@ import (
 )
 
 type (
-	NodeName    string //NodeName is the human-readable name of the node
-	NodeClass   string //NodeClass represents a category of node on the try
-	NodeClasses []NodeClass
+	NodeName  string //NodeName is the human-readable name of the node
+	NodeClass string //NodeClass represents a category of node
 
 	KeyName      string
 	KeyCondition string //KeyCondition represents a requirement for using an item. A KeyCondition is either can_act, or the name of another key
 	KeyAction    string //KeyAction indicates what to do after use of the key
 
-	Action     string //Action represents what to do when this node is visited
-	Actions    []Action
-	KeyActions []KeyAction
+	Action string //Action represents what to do when this node is visited
+
+	//helper collections to make searching through them easier
+	NodeClasses []NodeClass
+	Actions     []Action
+	KeyActions  []KeyAction
 )
 
 const (
