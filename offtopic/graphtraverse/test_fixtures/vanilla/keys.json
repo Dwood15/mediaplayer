@@ -1,0 +1,27 @@
+[
+	{
+		"name":    "bomb_bag",
+		"type":    "explosives",
+		"comment": "there should be 3 bomb bags in the pool"
+	},
+	{
+		"name":       "bombchus",
+		"type":       "explosives",
+		"conditions": [ "bomb_bag" ],
+		"comment":    "using/picking up more bombchus requires having the bomb bag"
+	},
+	{
+		"name":       "slingshot",
+		"type":       "ranged",
+		"conditions": [ "child" ]
+	},
+	{
+		"name":		  "deku_nuts",
+		"comment":    "deku nuts are hecking OP, but don't really factor into logic"
+	},
+	{
+		"name":		  "deku_sticks",
+		"conditions": [ "child" ],
+		"comment":    "deku sticks can be a stand-in for swords"
+	}
+]

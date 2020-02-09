@@ -1,704 +1,704 @@
 [
 	{
 		"Dungeon": {
-			"Outside Deku Tree -> Deku Tree Lobby": { "index": 0 },
-			"Deku Tree Lobby -> Outside Deku Tree": { "index": 0x0209, "blue_warp": 0x0457 }
+			"Outside Deku Tree -> Deku Tree Lobby": { "index": "0x0" },
+			"Deku Tree Lobby -> Outside Deku Tree": { "index": "0x0209", "blue_warp": "0x0457" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Dodongos Cavern Entryway -> Dodongos Cavern Beginning": { "index": 0x0004 },
-			"Dodongos Cavern Beginning -> Dodongos Cavern Entryway": { "index": 0x0242, "blue_warp": 0x047A }
+			"Dodongos Cavern Entryway -> Dodongos Cavern Beginning": { "index": "0x0004" },
+			"Dodongos Cavern Beginning -> Dodongos Cavern Entryway": { "index": "0x0242", "blue_warp": "0x047A" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Zoras Fountain -> Jabu Jabus Belly Beginning": { "index": 0x0028 },
-			"Jabu Jabus Belly Beginning -> Zoras Fountain": { "index": 0x0221, "blue_warp": 0x010E }
+			"Zoras Fountain -> Jabu Jabus Belly Beginning": { "index": "0x0028" },
+			"Jabu Jabus Belly Beginning -> Zoras Fountain": { "index": "0x0221", "blue_warp": "0x010E" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Sacred Forest Meadow -> Forest Temple Lobby": { "index": 0x0169 },
-			"Forest Temple Lobby -> Sacred Forest Meadow": { "index": 0x0215, "blue_warp": 0x0608 }
+			"Sacred Forest Meadow -> Forest Temple Lobby": { "index": "0x0169" },
+			"Forest Temple Lobby -> Sacred Forest Meadow": { "index": "0x0215", "blue_warp": "0x0608" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Fire Temple Entrance -> Fire Temple Lower": { "index": 0x0165 },
-			"Fire Temple Lower -> Fire Temple Entrance": { "index": 0x024A, "blue_warp": 0x0564 }
+			"Fire Temple Entrance -> Fire Temple Lower": { "index": "0x0165" },
+			"Fire Temple Lower -> Fire Temple Entrance": { "index": "0x024A", "blue_warp": "0x0564" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Lake Hylia -> Water Temple Lobby": { "index": 0x0010 },
-			"Water Temple Lobby -> Lake Hylia": { "index": 0x021D, "blue_warp": 0x060C }
+			"Lake Hylia -> Water Temple Lobby": { "index": "0x0010" },
+			"Water Temple Lobby -> Lake Hylia": { "index": "0x021D", "blue_warp": "0x060C" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Desert Colossus -> Spirit Temple Lobby": { "index": 0x0082 },
-			"Spirit Temple Lobby -> Desert Colossus": { "index": 0x01E1, "blue_warp": 0x0610 }
+			"Desert Colossus -> Spirit Temple Lobby": { "index": "0x0082" },
+			"Spirit Temple Lobby -> Desert Colossus": { "index": "0x01E1", "blue_warp": "0x0610" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Shadow Temple Warp Region -> Shadow Temple Entryway": { "index": 0x0037 },
-			"Shadow Temple Entryway -> Shadow Temple Warp Region": { "index": 0x0205, "blue_warp": 0x0580 }
+			"Shadow Temple Warp Region -> Shadow Temple Entryway": { "index": "0x0037" },
+			"Shadow Temple Entryway -> Shadow Temple Warp Region": { "index": "0x0205", "blue_warp": "0x0580" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Kakariko Village -> Bottom of the Well": { "index": 0x0098 },
-			"Bottom of the Well -> Kakariko Village": { "index": 0x02A6 }
+			"Kakariko Village -> Bottom of the Well": { "index": "0x0098" },
+			"Bottom of the Well -> Kakariko Village": { "index": "0x02A6" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Zoras Fountain -> Ice Cavern Beginning": { "index": 0x0088 },
-			"Ice Cavern Beginning -> Zoras Fountain": { "index": 0x03D4 }
+			"Zoras Fountain -> Ice Cavern Beginning": { "index": "0x0088" },
+			"Ice Cavern Beginning -> Zoras Fountain": { "index": "0x03D4" }
 		}
 	},
 	{
 		"Dungeon": {
-			"Gerudo Fortress -> Gerudo Training Grounds Lobby": { "index": 0x0008 },
-			"Gerudo Training Grounds Lobby -> Gerudo Fortress": { "index": 0x03A8 }
+			"Gerudo Fortress -> Gerudo Training Grounds Lobby": { "index": "0x0008" },
+			"Gerudo Training Grounds Lobby -> Gerudo Fortress": { "index": "0x03A8" }
 		}
 	},
 
 	{
 		"Interior": {
-			"Kokiri Forest -> Mido House": { "index": 0x0433 },
-			"Mido House -> Kokiri Forest": { "index": 0x0443 }
+			"Kokiri Forest -> Mido House": { "index": "0x0433" },
+			"Mido House -> Kokiri Forest": { "index": "0x0443" }
 		}
 	},
 	{
 		"Interior": {
-			"Kokiri Forest -> Saria House": { "index": 0x0437 },
-			"Saria House -> Kokiri Forest": { "index": 0x0447 }
+			"Kokiri Forest -> Saria House": { "index": "0x0437" },
+			"Saria House -> Kokiri Forest": { "index": "0x0447" }
 		}
 	},
 	{
 		"Interior": {
-			"Kokiri Forest -> House of Twins": { "index": 0x009C },
-			"House of Twins -> Kokiri Forest": { "index": 0x033C }
+			"Kokiri Forest -> House of Twins": { "index": "0x009C" },
+			"House of Twins -> Kokiri Forest": { "index": "0x033C" }
 		}
 	},
 	{
 		"Interior": {
-			"Kokiri Forest -> Know It All House": { "index": 0x00C9 },
-			"Know It All House -> Kokiri Forest": { "index": 0x026A }
+			"Kokiri Forest -> Know It All House": { "index": "0x00C9" },
+			"Know It All House -> Kokiri Forest": { "index": "0x026A" }
 		}
 	},
 	{
 		"Interior": {
-			"Kokiri Forest -> Kokiri Shop": { "index": 0x00C1 },
-			"Kokiri Shop -> Kokiri Forest": { "index": 0x0266 }
+			"Kokiri Forest -> Kokiri Shop": { "index": "0x00C1" },
+			"Kokiri Shop -> Kokiri Forest": { "index": "0x0266" }
 		}
 	},
 	{
 		"Interior": {
-			"Lake Hylia -> Lake Hylia Lab": { "index": 0x0043 },
-			"Lake Hylia Lab -> Lake Hylia": { "index": 0x03CC }
+			"Lake Hylia -> Lake Hylia Lab": { "index": "0x0043" },
+			"Lake Hylia Lab -> Lake Hylia": { "index": "0x03CC" }
 		}
 	},
 	{
 		"Interior": {
-			"Lake Hylia -> Fishing Hole": { "index": 0x045F },
-			"Fishing Hole -> Lake Hylia": { "index": 0x0309 }
+			"Lake Hylia -> Fishing Hole": { "index": "0x045F" },
+			"Fishing Hole -> Lake Hylia": { "index": "0x0309" }
 		}
 	},
 	{
 		"Interior": {
-			"Gerudo Valley Far Side -> Carpenter Tent": { "index": 0x03A0 },
-			"Carpenter Tent -> Gerudo Valley Far Side": { "index": 0x03D0 }
+			"Gerudo Valley Far Side -> Carpenter Tent": { "index": "0x03A0" },
+			"Carpenter Tent -> Gerudo Valley Far Side": { "index": "0x03D0" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town Entrance -> Castle Town Rupee Room": { "index": 0x007E },
-			"Castle Town Rupee Room -> Castle Town Entrance": { "index": 0x026E }
+			"Castle Town Entrance -> Castle Town Rupee Room": { "index": "0x007E" },
+			"Castle Town Rupee Room -> Castle Town Entrance": { "index": "0x026E" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Mask Shop": { "index": 0x0530 },
-			"Castle Town Mask Shop -> Castle Town": { "index": 0x01D1 }
+			"Castle Town -> Castle Town Mask Shop": { "index": "0x0530" },
+			"Castle Town Mask Shop -> Castle Town": { "index": "0x01D1" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Bombchu Bowling": { "index": 0x0507 },
-			"Castle Town Bombchu Bowling -> Castle Town": { "index": 0x03BC }
+			"Castle Town -> Castle Town Bombchu Bowling": { "index": "0x0507" },
+			"Castle Town Bombchu Bowling -> Castle Town": { "index": "0x03BC" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Potion Shop": { "index": 0x0388 },
-			"Castle Town Potion Shop -> Castle Town": { "index": 0x02A2 }
+			"Castle Town -> Castle Town Potion Shop": { "index": "0x0388" },
+			"Castle Town Potion Shop -> Castle Town": { "index": "0x02A2" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Treasure Chest Game": { "index": 0x0063 },
-			"Castle Town Treasure Chest Game -> Castle Town": { "index": 0x01D5 }
+			"Castle Town -> Castle Town Treasure Chest Game": { "index": "0x0063" },
+			"Castle Town Treasure Chest Game -> Castle Town": { "index": "0x01D5" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Bombchu Shop": { "index": 0x0528 },
-			"Castle Town Bombchu Shop -> Castle Town": { "index": 0x03C0 }
+			"Castle Town -> Castle Town Bombchu Shop": { "index": "0x0528" },
+			"Castle Town Bombchu Shop -> Castle Town": { "index": "0x03C0" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Man in Green House": { "index": 0x043B },
-			"Castle Town Man in Green House -> Castle Town": { "index": 0x0067 }
+			"Castle Town -> Castle Town Man in Green House": { "index": "0x043B" },
+			"Castle Town Man in Green House -> Castle Town": { "index": "0x0067" }
 		}
 	},
 	{
 		"Interior": {
-			"Kakariko Village -> Carpenter Boss House": { "index": 0x02FD },
-			"Carpenter Boss House -> Kakariko Village": { "index": 0x0349 }
+			"Kakariko Village -> Carpenter Boss House": { "index": "0x02FD" },
+			"Carpenter Boss House -> Kakariko Village": { "index": "0x0349" }
 		}
 	},
 	{
 		"Interior": {
-			"Kakariko Village -> House of Skulltula": { "index": 0x0550 },
-			"House of Skulltula -> Kakariko Village": { "index": 0x04EE }
+			"Kakariko Village -> House of Skulltula": { "index": "0x0550" },
+			"House of Skulltula -> Kakariko Village": { "index": "0x04EE" }
 		}
 	},
 	{
 		"Interior": {
-			"Kakariko Village -> Impas House": { "index": 0x039C },
-			"Impas House -> Kakariko Village": { "index": 0x0345 }
+			"Kakariko Village -> Impas House": { "index": "0x039C" },
+			"Impas House -> Kakariko Village": { "index": "0x0345" }
 		}
 	},
 	{
 		"Interior": {
-			"Kakariko Impa Ledge -> Impas House Back": { "index": 0x05C8 },
-			"Impas House Back -> Kakariko Impa Ledge": { "index": 0x05DC }
+			"Kakariko Impa Ledge -> Impas House Back": { "index": "0x05C8" },
+			"Impas House Back -> Kakariko Impa Ledge": { "index": "0x05DC" }
 		}
 	},
 	{
 		"Interior": {
-			"Kakariko Village Backyard -> Odd Medicine Building": { "index": 0x0072 },
-			"Odd Medicine Building -> Kakariko Village Backyard": { "index": 0x034D }
+			"Kakariko Village Backyard -> Odd Medicine Building": { "index": "0x0072" },
+			"Odd Medicine Building -> Kakariko Village Backyard": { "index": "0x034D" }
 		}
 	},
 	{
 		"Interior": {
-			"Graveyard -> Dampes House": { "index": 0x030D },
-			"Dampes House -> Graveyard": { "index": 0x0355 }
+			"Graveyard -> Dampes House": { "index": "0x030D" },
+			"Dampes House -> Graveyard": { "index": "0x0355" }
 		}
 	},
 	{
 		"Interior": {
-			"Goron City -> Goron Shop": { "index": 0x037C },
-			"Goron Shop -> Goron City": { "index": 0x03FC }
+			"Goron City -> Goron Shop": { "index": "0x037C" },
+			"Goron Shop -> Goron City": { "index": "0x03FC" }
 		}
 	},
 	{
 		"Interior": {
-			"Zoras Domain -> Zora Shop": { "index": 0x0380 },
-			"Zora Shop -> Zoras Domain": { "index": 0x03C4 }
+			"Zoras Domain -> Zora Shop": { "index": "0x0380" },
+			"Zora Shop -> Zoras Domain": { "index": "0x03C4" }
 		}
 	},
 	{
 		"Interior": {
-			"Lon Lon Ranch -> Talon House": { "index": 0x004F },
-			"Talon House -> Lon Lon Ranch": { "index": 0x0378 }
+			"Lon Lon Ranch -> Talon House": { "index": "0x004F" },
+			"Talon House -> Lon Lon Ranch": { "index": "0x0378" }
 		}
 	},
 	{
 		"Interior": {
-			"Lon Lon Ranch -> Ingo Barn": { "index": 0x02F9 },
-			"Ingo Barn -> Lon Lon Ranch": { "index": 0x042F }
+			"Lon Lon Ranch -> Ingo Barn": { "index": "0x02F9" },
+			"Ingo Barn -> Lon Lon Ranch": { "index": "0x042F" }
 		}
 	},
 	{
 		"Interior": {
-			"Lon Lon Ranch -> Lon Lon Corner Tower": { "index": 0x05D0 },
-			"Lon Lon Corner Tower -> Lon Lon Ranch": { "index": 0x05D4 }
+			"Lon Lon Ranch -> Lon Lon Corner Tower": { "index": "0x05D0" },
+			"Lon Lon Corner Tower -> Lon Lon Ranch": { "index": "0x05D4" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Bazaar": { "index": 0x052C },
-			"Castle Town Bazaar -> Castle Town": { "index": 0x03B8, "dynamic_address": 0xBEFD74 }
+			"Castle Town -> Castle Town Bazaar": { "index": "0x052C" },
+			"Castle Town Bazaar -> Castle Town": { "index": "0x03B8", "dynamic_address": "0xBEFD74" }
 		}
 	},
 	{
 		"Interior": {
-			"Castle Town -> Castle Town Shooting Gallery": { "index": 0x016D },
-			"Castle Town Shooting Gallery -> Castle Town": { "index": 0x01CD, "dynamic_address": 0xBEFD7C }
+			"Castle Town -> Castle Town Shooting Gallery": { "index": "0x016D" },
+			"Castle Town Shooting Gallery -> Castle Town": { "index": "0x01CD", "dynamic_address": "0xBEFD7C" }
 		}
 	},
 	{
 		"Interior": {
-			"Kakariko Village -> Kakariko Bazaar": { "index": 0x00B7 },
-			"Kakariko Bazaar -> Kakariko Village": { "index": 0x0201, "dynamic_address": 0xBEFD72 }
+			"Kakariko Village -> Kakariko Bazaar": { "index": "0x00B7" },
+			"Kakariko Bazaar -> Kakariko Village": { "index": "0x0201", "dynamic_address": "0xBEFD72" }
 		}
 	},
 	{
 		"Interior": {
-			"Kakariko Village -> Kakariko Shooting Gallery": { "index": 0x003B },
-			"Kakariko Shooting Gallery -> Kakariko Village": { "index": 0x0463, "dynamic_address": 0xBEFD7A }
+			"Kakariko Village -> Kakariko Shooting Gallery": { "index": "0x003B" },
+			"Kakariko Shooting Gallery -> Kakariko Village": { "index": "0x0463", "dynamic_address": "0xBEFD7A" }
 		}
 	},
 	{
 		"Interior": {
-			"Desert Colossus -> Colossus Fairy": { "index": 0x0588 },
-			"Colossus Fairy -> Desert Colossus": { "index": 0x057C, "dynamic_address": 0xBEFD82 }
+			"Desert Colossus -> Colossus Fairy": { "index": "0x0588" },
+			"Colossus Fairy -> Desert Colossus": { "index": "0x057C", "dynamic_address": "0xBEFD82" }
 		}
 	},
 	{
 		"Interior": {
-			"Hyrule Castle Grounds -> Hyrule Castle Fairy": { "index": 0x0578 },
-			"Hyrule Castle Fairy -> Castle Grounds":        { "index": 0x0340, "dynamic_address": 0xBEFD80 }
+			"Hyrule Castle Grounds -> Hyrule Castle Fairy": { "index": "0x0578" },
+			"Hyrule Castle Fairy -> Castle Grounds":        { "index": "0x0340", "dynamic_address": "0xBEFD80" }
 		}
 	},
 	{
 		"Interior": {
-			"Ganons Castle Grounds -> Ganons Castle Fairy": { "index": 0x04C2 },
-			"Ganons Castle Fairy -> Castle Grounds":        { "index": 0x0340, "dynamic_address": 0xBEFD6C }
+			"Ganons Castle Grounds -> Ganons Castle Fairy": { "index": "0x04C2" },
+			"Ganons Castle Fairy -> Castle Grounds":        { "index": "0x0340", "dynamic_address": "0xBEFD6C" }
 		}
 	},
 	{
 		"Interior": {
-			"Death Mountain Crater Lower Nearby -> Crater Fairy": { "index": 0x04BE },
-			"Crater Fairy -> Death Mountain Crater Lower Local":  { "index": 0x0482, "dynamic_address": 0xBEFD6A }
+			"Death Mountain Crater Lower Nearby -> Crater Fairy": { "index": "0x04BE" },
+			"Crater Fairy -> Death Mountain Crater Lower Local":  { "index": "0x0482", "dynamic_address": "0xBEFD6A" }
 		}
 	},
 	{
 		"Interior": {
-			"Death Mountain Summit -> Mountain Summit Fairy": { "index": 0x0315 },
-			"Mountain Summit Fairy -> Death Mountain Summit": { "index": 0x045B, "dynamic_address": 0xBEFD68 }
+			"Death Mountain Summit -> Mountain Summit Fairy": { "index": "0x0315" },
+			"Mountain Summit Fairy -> Death Mountain Summit": { "index": "0x045B", "dynamic_address": "0xBEFD68" }
 		}
 	},
 	{
 		"Interior": {
-			"Zoras Fountain -> Zoras Fountain Fairy": { "index": 0x0371 },
-			"Zoras Fountain Fairy -> Zoras Fountain": { "index": 0x0394, "dynamic_address": 0xBEFD7E }
+			"Zoras Fountain -> Zoras Fountain Fairy": { "index": "0x0371" },
+			"Zoras Fountain Fairy -> Zoras Fountain": { "index": "0x0394", "dynamic_address": "0xBEFD7E" }
 		}
 	},
 
 	{
 		"SpecialInterior": {
-			"Kokiri Forest -> Links House": { "index": 0x0272 },
-			"Links House -> Kokiri Forest": { "index": 0x0211 }
+			"Kokiri Forest -> Links House": { "index": "0x0272" },
+			"Links House -> Kokiri Forest": { "index": "0x0211" }
 		}
 	},
 	{
 		"SpecialInterior": {
-			"Temple of Time Exterior -> Temple of Time": { "index": 0x0053 },
-			"Temple of Time -> Temple of Time Exterior": { "index": 0x0472 }
+			"Temple of Time Exterior -> Temple of Time": { "index": "0x0053" },
+			"Temple of Time -> Temple of Time Exterior": { "index": "0x0472" }
 		}
 	},
 	{
 		"SpecialInterior": {
-			"Kakariko Village -> Windmill": { "index": 0x0453 },
-			"Windmill -> Kakariko Village": { "index": 0x0351 }
+			"Kakariko Village -> Windmill": { "index": "0x0453" },
+			"Windmill -> Kakariko Village": { "index": "0x0351" }
 		}
 	},
 	{
 		"SpecialInterior": {
-			"Kakariko Village -> Kakariko Potion Shop Front": { "index": 0x0384 },
-			"Kakariko Potion Shop Front -> Kakariko Village": { "index": 0x044B }
+			"Kakariko Village -> Kakariko Potion Shop Front": { "index": "0x0384" },
+			"Kakariko Potion Shop Front -> Kakariko Village": { "index": "0x044B" }
 		}
 	},
 	{
 		"SpecialInterior": {
-			"Kakariko Village Backyard -> Kakariko Potion Shop Back": { "index": 0x03EC },
-			"Kakariko Potion Shop Back -> Kakariko Village Backyard": { "index": 0x04FF }
+			"Kakariko Village Backyard -> Kakariko Potion Shop Back": { "index": "0x03EC" },
+			"Kakariko Potion Shop Back -> Kakariko Village Backyard": { "index": "0x04FF" }
 		}
 	},
 
 	{
 		"Grotto": {
-			"Desert Colossus -> Desert Colossus Grotto": { "grotto_id": 0x00, "entrance": 0x05BC, "content": 0xFD, "scene": 0x5C },
-			"Desert Colossus Grotto -> Desert Colossus": { "grotto_id": 0x00 }
+			"Desert Colossus -> Desert Colossus Grotto": { "grotto_id": "0x00", "entrance": "0x05BC", "content": "0xFD", "scene": "0x5C" },
+			"Desert Colossus Grotto -> Desert Colossus": { "grotto_id": "0x00" }
 		}
 	},
 	{
 		"Grotto": {
-			"Lake Hylia -> Lake Hylia Grotto": { "grotto_id": 0x01, "entrance": 0x05A4, "content": 0xEF, "scene": 0x57 },
-			"Lake Hylia Grotto -> Lake Hylia": { "grotto_id": 0x01 }
+			"Lake Hylia -> Lake Hylia Grotto": { "grotto_id": "0x01", "entrance": "0x05A4", "content": "0xEF", "scene": "0x57" },
+			"Lake Hylia Grotto -> Lake Hylia": { "grotto_id": "0x01" }
 		}
 	},
 	{
 		"Grotto": {
-			"Zora River -> Zora River Storms Grotto": { "grotto_id": 0x02, "entrance": 0x05BC, "content": 0xEB, "scene": 0x54 },
-			"Zora River Storms Grotto -> Zora River": { "grotto_id": 0x02 }
+			"Zora River -> Zora River Storms Grotto": { "grotto_id": "0x02", "entrance": "0x05BC", "content": "0xEB", "scene": "0x54" },
+			"Zora River Storms Grotto -> Zora River": { "grotto_id": "0x02" }
 		}
 	},
 	{
 		"Grotto": {
-			"Zora River -> Zora River Plateau Bombable Grotto": { "grotto_id": 0x03, "entrance": 0x036D, "content": 0xE6, "scene": 0x54 },
-			"Zora River Plateau Bombable Grotto -> Zora River": { "grotto_id": 0x03 }
+			"Zora River -> Zora River Plateau Bombable Grotto": { "grotto_id": "0x03", "entrance": "0x036D", "content": "0xE6", "scene": "0x54" },
+			"Zora River Plateau Bombable Grotto -> Zora River": { "grotto_id": "0x03" }
 		}
 	},
 	{
 		"Grotto": {
-			"Zora River -> Zora River Plateau Open Grotto": { "grotto_id": 0x04, "entrance": 0x003F, "content": 0x29, "scene": 0x54 },
-			"Zora River Plateau Open Grotto -> Zora River": { "grotto_id": 0x04 }
+			"Zora River -> Zora River Plateau Open Grotto": { "grotto_id": "0x04", "entrance": "0x003F", "content": "0x29", "scene": "0x54" },
+			"Zora River Plateau Open Grotto -> Zora River": { "grotto_id": "0x04" }
 		}
 	},
 	{
 		"Grotto": {
-			"Death Mountain Crater Lower Nearby -> DMC Hammer Grotto": { "grotto_id": 0x05, "entrance": 0x05A4, "content": 0xF9, "scene": 0x61 },
-			"DMC Hammer Grotto -> Death Mountain Crater Lower Local":  { "grotto_id": 0x05 }
+			"Death Mountain Crater Lower Nearby -> DMC Hammer Grotto": { "grotto_id": "0x05", "entrance": "0x05A4", "content": "0xF9", "scene": "0x61" },
+			"DMC Hammer Grotto -> Death Mountain Crater Lower Local":  { "grotto_id": "0x05" }
 		}
 	},
 	{
 		"Grotto": {
-			"Death Mountain Crater Upper Nearby -> Top of Crater Grotto": { "grotto_id": 0x06, "entrance": 0x003F, "content": 0x7A, "scene": 0x61 },
-			"Top of Crater Grotto -> Death Mountain Crater Upper Local":  { "grotto_id": 0x06 }
+			"Death Mountain Crater Upper Nearby -> Top of Crater Grotto": { "grotto_id": "0x06", "entrance": "0x003F", "content": "0x7A", "scene": "0x61" },
+			"Top of Crater Grotto -> Death Mountain Crater Upper Local":  { "grotto_id": "0x06" }
 		}
 	},
 	{
 		"Grotto": {
-			"Goron City -> Goron City Grotto": { "grotto_id": 0x07, "entrance": 0x05A4, "content": 0xFB, "scene": 0x62 },
-			"Goron City Grotto -> Goron City": { "grotto_id": 0x07 }
+			"Goron City -> Goron City Grotto": { "grotto_id": "0x07", "entrance": "0x05A4", "content": "0xFB", "scene": "0x62" },
+			"Goron City Grotto -> Goron City": { "grotto_id": "0x07" }
 		}
 	},
 	{
 		"Grotto": {
-			"Death Mountain -> Mountain Storms Grotto": { "grotto_id": 0x08, "entrance": 0x003F, "content": 0x57, "scene": 0x60 },
-			"Mountain Storms Grotto -> Death Mountain": { "grotto_id": 0x08 }
+			"Death Mountain -> Mountain Storms Grotto": { "grotto_id": "0x08", "entrance": "0x003F", "content": "0x57", "scene": "0x60" },
+			"Mountain Storms Grotto -> Death Mountain": { "grotto_id": "0x08" }
 		}
 	},
 	{
 		"Grotto": {
-			"Death Mountain Summit -> Mountain Bombable Grotto": { "grotto_id": 0x09, "entrance": 0x05FC, "content": 0xF8, "scene": 0x60 },
-			"Mountain Bombable Grotto -> Death Mountain Summit": { "grotto_id": 0x09 }
+			"Death Mountain Summit -> Mountain Bombable Grotto": { "grotto_id": "0x09", "entrance": "0x05FC", "content": "0xF8", "scene": "0x60" },
+			"Mountain Bombable Grotto -> Death Mountain Summit": { "grotto_id": "0x09" }
 		}
 	},
 	{
 		"Grotto": {
-			"Kakariko Village Backyard -> Kakariko Back Grotto": { "grotto_id": 0x0A, "entrance": 0x003F, "content": 0x28, "scene": 0x52 },
-			"Kakariko Back Grotto -> Kakariko Village Backyard": { "grotto_id": 0x0A }
+			"Kakariko Village Backyard -> Kakariko Back Grotto": { "grotto_id": "0x0A", "entrance": "0x003F", "content": "0x28", "scene": "0x52" },
+			"Kakariko Back Grotto -> Kakariko Village Backyard": { "grotto_id": "0x0A" }
 		}
 	},
 	{
 		"Grotto": {
-			"Kakariko Village -> Kakariko Bombable Grotto": { "grotto_id": 0x0B, "entrance": 0x05A0, "content": 0xE7, "scene": 0x52 },
-			"Kakariko Bombable Grotto -> Kakariko Village": { "grotto_id": 0x0B }
+			"Kakariko Village -> Kakariko Bombable Grotto": { "grotto_id": "0x0B", "entrance": "0x05A0", "content": "0xE7", "scene": "0x52" },
+			"Kakariko Bombable Grotto -> Kakariko Village": { "grotto_id": "0x0B" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Castle Grounds -> Castle Storms Grotto": { "grotto_id": 0x0C, "entrance": 0x05B8, "content": 0xF6, "scene": 0x5F },
-			"Castle Storms Grotto -> Hyrule Castle Grounds": { "grotto_id": 0x0C }
+			"Hyrule Castle Grounds -> Castle Storms Grotto": { "grotto_id": "0x0C", "entrance": "0x05B8", "content": "0xF6", "scene": "0x5F" },
+			"Castle Storms Grotto -> Hyrule Castle Grounds": { "grotto_id": "0x0C" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Field North Lon Lon Grotto": { "grotto_id": 0x0D, "entrance": 0x05C0, "content": 0xE1, "scene": 0x51 },
-			"Field North Lon Lon Grotto -> Hyrule Field": { "grotto_id": 0x0D }
+			"Hyrule Field -> Field North Lon Lon Grotto": { "grotto_id": "0x0D", "entrance": "0x05C0", "content": "0xE1", "scene": "0x51" },
+			"Field North Lon Lon Grotto -> Hyrule Field": { "grotto_id": "0x0D" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Field Kakariko Grotto": { "grotto_id": 0x0E, "entrance": 0x0598, "content": 0xE5, "scene": 0x51 },
-			"Field Kakariko Grotto -> Hyrule Field": { "grotto_id": 0x0E }
+			"Hyrule Field -> Field Kakariko Grotto": { "grotto_id": "0x0E", "entrance": "0x0598", "content": "0xE5", "scene": "0x51" },
+			"Field Kakariko Grotto -> Hyrule Field": { "grotto_id": "0x0E" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Field Far West Castle Town Grotto": { "grotto_id": 0x0F, "entrance": 0x036D, "content": 0xFF, "scene": 0x51 },
-			"Field Far West Castle Town Grotto -> Hyrule Field": { "grotto_id": 0x0F }
+			"Hyrule Field -> Field Far West Castle Town Grotto": { "grotto_id": "0x0F", "entrance": "0x036D", "content": "0xFF", "scene": "0x51" },
+			"Field Far West Castle Town Grotto -> Hyrule Field": { "grotto_id": "0x0F" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Field West Castle Town Grotto": { "grotto_id": 0x10, "entrance": 0x003F, "content": 0x00, "scene": 0x51 },
-			"Field West Castle Town Grotto -> Hyrule Field": { "grotto_id": 0x10 }
+			"Hyrule Field -> Field West Castle Town Grotto": { "grotto_id": "0x10", "entrance": "0x003F", "content": "0x00", "scene": "0x51" },
+			"Field West Castle Town Grotto -> Hyrule Field": { "grotto_id": "0x10" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Field Valley Grotto": { "grotto_id": 0x11, "entrance": 0x05A8, "content": 0xE4, "scene": 0x51 },
-			"Field Valley Grotto -> Hyrule Field": { "grotto_id": 0x11 }
+			"Hyrule Field -> Field Valley Grotto": { "grotto_id": "0x11", "entrance": "0x05A8", "content": "0xE4", "scene": "0x51" },
+			"Field Valley Grotto -> Hyrule Field": { "grotto_id": "0x11" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Field Near Lake Inside Fence Grotto": { "grotto_id": 0x12, "entrance": 0x059C, "content": 0xE6, "scene": 0x51 },
-			"Field Near Lake Inside Fence Grotto -> Hyrule Field": { "grotto_id": 0x12 }
+			"Hyrule Field -> Field Near Lake Inside Fence Grotto": { "grotto_id": "0x12", "entrance": "0x059C", "content": "0xE6", "scene": "0x51" },
+			"Field Near Lake Inside Fence Grotto -> Hyrule Field": { "grotto_id": "0x12" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Field Near Lake Outside Fence Grotto": { "grotto_id": 0x13, "entrance": 0x003F, "content": 0x03, "scene": 0x51 },
-			"Field Near Lake Outside Fence Grotto -> Hyrule Field": { "grotto_id": 0x13 }
+			"Hyrule Field -> Field Near Lake Outside Fence Grotto": { "grotto_id": "0x13", "entrance": "0x003F", "content": "0x03", "scene": "0x51" },
+			"Field Near Lake Outside Fence Grotto -> Hyrule Field": { "grotto_id": "0x13" }
 		}
 	},
 	{
 		"Grotto": {
-			"Hyrule Field -> Remote Southern Grotto": { "grotto_id": 0x14, "entrance": 0x003F, "content": 0x22, "scene": 0x51 },
-			"Remote Southern Grotto -> Hyrule Field": { "grotto_id": 0x14 }
+			"Hyrule Field -> Remote Southern Grotto": { "grotto_id": "0x14", "entrance": "0x003F", "content": "0x22", "scene": "0x51" },
+			"Remote Southern Grotto -> Hyrule Field": { "grotto_id": "0x14" }
 		}
 	},
 	{
 		"Grotto": {
-			"Lon Lon Ranch -> Lon Lon Grotto": { "grotto_id": 0x15, "entrance": 0x05A4, "content": 0xFC, "scene": 0x63 },
-			"Lon Lon Grotto -> Lon Lon Ranch": { "grotto_id": 0x15 }
+			"Lon Lon Ranch -> Lon Lon Grotto": { "grotto_id": "0x15", "entrance": "0x05A4", "content": "0xFC", "scene": "0x63" },
+			"Lon Lon Grotto -> Lon Lon Ranch": { "grotto_id": "0x15" }
 		}
 	},
 	{
 		"Grotto": {
-			"Sacred Forest Meadow Entryway -> Front of Meadow Grotto": { "grotto_id": 0x16, "entrance": 0x05B4, "content": 0xED, "scene": 0x56 },
-			"Front of Meadow Grotto -> Sacred Forest Meadow Entryway": { "grotto_id": 0x16 }
+			"Sacred Forest Meadow Entryway -> Front of Meadow Grotto": { "grotto_id": "0x16", "entrance": "0x05B4", "content": "0xED", "scene": "0x56" },
+			"Front of Meadow Grotto -> Sacred Forest Meadow Entryway": { "grotto_id": "0x16" }
 		}
 	},
 	{
 		"Grotto": {
-			"Sacred Forest Meadow -> Meadow Storms Grotto": { "grotto_id": 0x17, "entrance": 0x05BC, "content": 0xEE, "scene": 0x56 },
-			"Meadow Storms Grotto -> Sacred Forest Meadow": { "grotto_id": 0x17 }
+			"Sacred Forest Meadow -> Meadow Storms Grotto": { "grotto_id": "0x17", "entrance": "0x05BC", "content": "0xEE", "scene": "0x56" },
+			"Meadow Storms Grotto -> Sacred Forest Meadow": { "grotto_id": "0x17" }
 		}
 	},
 	{
 		"Grotto": {
-			"Sacred Forest Meadow -> Meadow Fairy Grotto": { "grotto_id": 0x18, "entrance": 0x036D, "content": 0xFF, "scene": 0x56 },
-			"Meadow Fairy Grotto -> Sacred Forest Meadow": { "grotto_id": 0x18 }
+			"Sacred Forest Meadow -> Meadow Fairy Grotto": { "grotto_id": "0x18", "entrance": "0x036D", "content": "0xFF", "scene": "0x56" },
+			"Meadow Fairy Grotto -> Sacred Forest Meadow": { "grotto_id": "0x18" }
 		}
 	},
 	{
 		"Grotto": {
-			"Lost Woods Beyond Mido -> Lost Woods Sales Grotto": { "grotto_id": 0x19, "entrance": 0x05B0, "content": 0xF5, "scene": 0x5B },
-			"Lost Woods Sales Grotto -> Lost Woods Beyond Mido": { "grotto_id": 0x19 }
+			"Lost Woods Beyond Mido -> Lost Woods Sales Grotto": { "grotto_id": "0x19", "entrance": "0x05B0", "content": "0xF5", "scene": "0x5B" },
+			"Lost Woods Sales Grotto -> Lost Woods Beyond Mido": { "grotto_id": "0x19" }
 		}
 	},
 	{
 		"Grotto": {
-			"Lost Woods -> Lost Woods Generic Grotto": { "grotto_id": 0x1A, "entrance": 0x003F, "content": 0x14, "scene": 0x5B },
-			"Lost Woods Generic Grotto -> Lost Woods": { "grotto_id": 0x1A }
+			"Lost Woods -> Lost Woods Generic Grotto": { "grotto_id": "0x1A", "entrance": "0x003F", "content": "0x14", "scene": "0x5B" },
+			"Lost Woods Generic Grotto -> Lost Woods": { "grotto_id": "0x1A" }
 		}
 	},
 	{
 		"Grotto": {
-			"Kokiri Forest -> Kokiri Forest Storms Grotto": { "grotto_id": 0x1B, "entrance": 0x003F, "content": 0x2C, "scene": 0x55 },
-			"Kokiri Forest Storms Grotto -> Kokiri Forest": { "grotto_id": 0x1B }
+			"Kokiri Forest -> Kokiri Forest Storms Grotto": { "grotto_id": "0x1B", "entrance": "0x003F", "content": "0x2C", "scene": "0x55" },
+			"Kokiri Forest Storms Grotto -> Kokiri Forest": { "grotto_id": "0x1B" }
 		}
 	},
 	{
 		"Grotto": {
-			"Zoras Domain -> Zoras Domain Storms Grotto": { "grotto_id": 0x1C, "entrance": 0x036D, "content": 0xFF, "scene": 0x58 },
-			"Zoras Domain Storms Grotto -> Zoras Domain": { "grotto_id": 0x1C }
+			"Zoras Domain -> Zoras Domain Storms Grotto": { "grotto_id": "0x1C", "entrance": "0x036D", "content": "0xFF", "scene": "0x58" },
+			"Zoras Domain Storms Grotto -> Zoras Domain": { "grotto_id": "0x1C" }
 		}
 	},
 	{
 		"Grotto": {
-			"Gerudo Fortress -> Gerudo Fortress Storms Grotto": { "grotto_id": 0x1D, "entrance": 0x036D, "content": 0xFF, "scene": 0x5D },
-			"Gerudo Fortress Storms Grotto -> Gerudo Fortress": { "grotto_id": 0x1D }
+			"Gerudo Fortress -> Gerudo Fortress Storms Grotto": { "grotto_id": "0x1D", "entrance": "0x036D", "content": "0xFF", "scene": "0x5D" },
+			"Gerudo Fortress Storms Grotto -> Gerudo Fortress": { "grotto_id": "0x1D" }
 		}
 	},
 	{
 		"Grotto": {
-			"Gerudo Valley Far Side -> Gerudo Valley Storms Grotto": { "grotto_id": 0x1E, "entrance": 0x05BC, "content": 0xF0, "scene": 0x5A },
-			"Gerudo Valley Storms Grotto -> Gerudo Valley Far Side": { "grotto_id": 0x1E }
+			"Gerudo Valley Far Side -> Gerudo Valley Storms Grotto": { "grotto_id": "0x1E", "entrance": "0x05BC", "content": "0xF0", "scene": "0x5A" },
+			"Gerudo Valley Storms Grotto -> Gerudo Valley Far Side": { "grotto_id": "0x1E" }
 		}
 	},
 	{
 		"Grotto": {
-			"Gerudo Valley -> Gerudo Valley Octorok Grotto": { "grotto_id": 0x1F, "entrance": 0x05AC, "content": 0xF2, "scene": 0x5A },
-			"Gerudo Valley Octorok Grotto -> Gerudo Valley": { "grotto_id": 0x1F }
+			"Gerudo Valley -> Gerudo Valley Octorok Grotto": { "grotto_id": "0x1F", "entrance": "0x05AC", "content": "0xF2", "scene": "0x5A" },
+			"Gerudo Valley Octorok Grotto -> Gerudo Valley": { "grotto_id": "0x1F" }
 		}
 	},
 	{
 		"Grotto": {
-			"Lost Woods Beyond Mido -> Deku Theater": { "grotto_id": 0x20, "entrance": 0x05C4, "content": 0xF3, "scene": 0x5B },
-			"Deku Theater -> Lost Woods Beyond Mido": { "grotto_id": 0x20 }
+			"Lost Woods Beyond Mido -> Deku Theater": { "grotto_id": "0x20", "entrance": "0x05C4", "content": "0xF3", "scene": "0x5B" },
+			"Deku Theater -> Lost Woods Beyond Mido": { "grotto_id": "0x20" }
 		}
 	},
 
 	{
 		"Grave": {
-			"Graveyard -> Shield Grave": { "index": 0x004B },
-			"Shield Grave -> Graveyard": { "index": 0x035D }
+			"Graveyard -> Shield Grave": { "index": "0x004B" },
+			"Shield Grave -> Graveyard": { "index": "0x035D" }
 		}
 	},
 	{
 		"Grave": {
-			"Graveyard -> Heart Piece Grave": { "index": 0x031C },
-			"Heart Piece Grave -> Graveyard": { "index": 0x0361 }
+			"Graveyard -> Heart Piece Grave": { "index": "0x031C" },
+			"Heart Piece Grave -> Graveyard": { "index": "0x0361" }
 		}
 	},
 	{
 		"Grave": {
-			"Graveyard -> Composer Grave": { "index": 0x002D },
-			"Composer Grave -> Graveyard": { "index": 0x050B }
+			"Graveyard -> Composer Grave": { "index": "0x002D" },
+			"Composer Grave -> Graveyard": { "index": "0x050B" }
 		}
 	},
 
 	{
 		"SpecialGrave": {
-			"Graveyard -> Dampes Grave": { "index": 0x044F },
-			"Dampes Grave -> Graveyard": { "index": 0x0359 }
+			"Graveyard -> Dampes Grave": { "index": "0x044F" },
+			"Dampes Grave -> Graveyard": { "index": "0x0359" }
 		}
 	},
 
 	{
 		"Overworld": {
-			"Kokiri Forest -> Lost Woods Bridge From Forest": { "index": 0x05E0 },
-			"Lost Woods Bridge -> Kokiri Forest":             { "index": 0x020D }
+			"Kokiri Forest -> Lost Woods Bridge From Forest": { "index": "0x05E0" },
+			"Lost Woods Bridge -> Kokiri Forest":             { "index": "0x020D" }
 		}
 	},
 	{
 		"Overworld": {
-			"Kokiri Forest -> Lost Woods":             { "index": 0x011E },
-			"Lost Woods Forest Exit -> Kokiri Forest": { "index": 0x0286 }
+			"Kokiri Forest -> Lost Woods":             { "index": "0x011E" },
+			"Lost Woods Forest Exit -> Kokiri Forest": { "index": "0x0286" }
 		}
 	},
 	{
 		"Overworld": {
-			"Lost Woods -> Goron City Woods Warp": { "index": 0x04E2 },
-			"Goron City Woods Warp -> Lost Woods": { "index": 0x04D6 }
+			"Lost Woods -> Goron City Woods Warp": { "index": "0x04E2" },
+			"Goron City Woods Warp -> Lost Woods": { "index": "0x04D6" }
 		}
 	},
 	{
 		"Overworld": {
-			"Lost Woods -> Zora River": { "index": 0x01DD },
-			"Zora River -> Lost Woods": { "index": 0x04DA }
+			"Lost Woods -> Zora River": { "index": "0x01DD" },
+			"Zora River -> Lost Woods": { "index": "0x04DA" }
 		}
 	},
 	{
 		"Overworld": {
-			"Lost Woods Beyond Mido -> Sacred Forest Meadow Entryway": { "index": 0x00FC },
-			"Sacred Forest Meadow Entryway -> Lost Woods Beyond Mido": { "index": 0x01A9 }
+			"Lost Woods Beyond Mido -> Sacred Forest Meadow Entryway": { "index": "0x00FC" },
+			"Sacred Forest Meadow Entryway -> Lost Woods Beyond Mido": { "index": "0x01A9" }
 		}
 	},
 	{
 		"Overworld": {
-			"Lost Woods Bridge -> Hyrule Field": { "index": 0x0185 },
-			"Hyrule Field -> Lost Woods Bridge": { "index": 0x04DE }
+			"Lost Woods Bridge -> Hyrule Field": { "index": "0x0185" },
+			"Hyrule Field -> Lost Woods Bridge": { "index": "0x04DE" }
 		}
 	},
 	{
 		"Overworld": {
-			"Hyrule Field -> Lake Hylia": { "index": 0x0102 },
-			"Lake Hylia -> Hyrule Field": { "index": 0x0189 }
+			"Hyrule Field -> Lake Hylia": { "index": "0x0102" },
+			"Lake Hylia -> Hyrule Field": { "index": "0x0189" }
 		}
 	},
 	{
 		"Overworld": {
-			"Hyrule Field -> Gerudo Valley": { "index": 0x0117 },
-			"Gerudo Valley -> Hyrule Field": { "index": 0x018D }
+			"Hyrule Field -> Gerudo Valley": { "index": "0x0117" },
+			"Gerudo Valley -> Hyrule Field": { "index": "0x018D" }
 		}
 	},
 	{
 		"Overworld": {
-			"Hyrule Field -> Castle Town Entrance": { "index": 0x0276 },
-			"Castle Town Entrance -> Hyrule Field": { "index": 0x01FD }
+			"Hyrule Field -> Castle Town Entrance": { "index": "0x0276" },
+			"Castle Town Entrance -> Hyrule Field": { "index": "0x01FD" }
 		}
 	},
 	{
 		"Overworld": {
-			"Hyrule Field -> Kakariko Village": { "index": 0x00DB },
-			"Kakariko Village -> Hyrule Field": { "index": 0x017D }
+			"Hyrule Field -> Kakariko Village": { "index": "0x00DB" },
+			"Kakariko Village -> Hyrule Field": { "index": "0x017D" }
 		}
 	},
 	{
 		"Overworld": {
-			"Hyrule Field -> Zora River Front": { "index": 0x00EA },
-			"Zora River Front -> Hyrule Field": { "index": 0x0181 }
+			"Hyrule Field -> Zora River Front": { "index": "0x00EA" },
+			"Zora River Front -> Hyrule Field": { "index": "0x0181" }
 		}
 	},
 	{
 		"Overworld": {
-			"Hyrule Field -> Lon Lon Ranch": { "index": 0x0157 },
-			"Lon Lon Ranch -> Hyrule Field": { "index": 0x01F9 }
+			"Hyrule Field -> Lon Lon Ranch": { "index": "0x0157" },
+			"Lon Lon Ranch -> Hyrule Field": { "index": "0x01F9" }
 		}
 	},
 	{
 		"Overworld": {
-			"Lake Hylia -> Zoras Domain": { "index": 0x0328 },
-			"Zoras Domain -> Lake Hylia": { "index": 0x0560 }
+			"Lake Hylia -> Zoras Domain": { "index": "0x0328" },
+			"Zoras Domain -> Lake Hylia": { "index": "0x0560" }
 		}
 	},
 	{
 		"Overworld": {
-			"Gerudo Valley Far Side -> Gerudo Fortress": { "index": 0x0129 },
-			"Gerudo Fortress -> Gerudo Valley Far Side": { "index": 0x022D }
+			"Gerudo Valley Far Side -> Gerudo Fortress": { "index": "0x0129" },
+			"Gerudo Fortress -> Gerudo Valley Far Side": { "index": "0x022D" }
 		}
 	},
 	{
 		"Overworld": {
-			"Gerudo Fortress Outside Gate -> Haunted Wasteland Near Fortress": { "index": 0x0130 },
-			"Haunted Wasteland Near Fortress -> Gerudo Fortress Outside Gate": { "index": 0x03AC }
+			"Gerudo Fortress Outside Gate -> Haunted Wasteland Near Fortress": { "index": "0x0130" },
+			"Haunted Wasteland Near Fortress -> Gerudo Fortress Outside Gate": { "index": "0x03AC" }
 		}
 	},
 	{
 		"Overworld": {
-			"Haunted Wasteland Near Colossus -> Desert Colossus": { "index": 0x0123 },
-			"Desert Colossus -> Haunted Wasteland Near Colossus": { "index": 0x0365 }
+			"Haunted Wasteland Near Colossus -> Desert Colossus": { "index": "0x0123" },
+			"Desert Colossus -> Haunted Wasteland Near Colossus": { "index": "0x0365" }
 		}
 	},
 	{
 		"Overworld": {
-			"Castle Town Entrance -> Castle Town": { "index": 0x00B1 },
-			"Castle Town -> Castle Town Entrance": { "index": 0x0033 }
+			"Castle Town Entrance -> Castle Town": { "index": "0x00B1" },
+			"Castle Town -> Castle Town Entrance": { "index": "0x0033" }
 		}
 	},
 	{
 		"Overworld": {
-			"Castle Town -> Castle Grounds": { "index": 0x0138 },
-			"Castle Grounds -> Castle Town": { "index": 0x025A }
+			"Castle Town -> Castle Grounds": { "index": "0x0138" },
+			"Castle Grounds -> Castle Town": { "index": "0x025A" }
 		}
 	},
 	{
 		"Overworld": {
-			"Castle Town -> Temple of Time Exterior": { "index": 0x0171 },
-			"Temple of Time Exterior -> Castle Town": { "index": 0x025E }
+			"Castle Town -> Temple of Time Exterior": { "index": "0x0171" },
+			"Temple of Time Exterior -> Castle Town": { "index": "0x025E" }
 		}
 	},
 	{
 		"Overworld": {
-			"Kakariko Village -> Graveyard": { "index": 0x00E4 },
-			"Graveyard -> Kakariko Village": { "index": 0x0195 }
+			"Kakariko Village -> Graveyard": { "index": "0x00E4" },
+			"Graveyard -> Kakariko Village": { "index": "0x0195" }
 		}
 	},
 	{
 		"Overworld": {
-			"Kakariko Village Behind Gate -> Death Mountain": { "index": 0x013D },
-			"Death Mountain -> Kakariko Village Behind Gate": { "index": 0x0191 }
+			"Kakariko Village Behind Gate -> Death Mountain": { "index": "0x013D" },
+			"Death Mountain -> Kakariko Village Behind Gate": { "index": "0x0191" }
 		}
 	},
 	{
 		"Overworld": {
-			"Death Mountain -> Goron City": { "index": 0x014D },
-			"Goron City -> Death Mountain": { "index": 0x01B9 }
+			"Death Mountain -> Goron City": { "index": "0x014D" },
+			"Goron City -> Death Mountain": { "index": "0x01B9" }
 		}
 	},
 	{
 		"Overworld": {
-			"Darunias Chamber -> Death Mountain Crater Lower Local":  { "index": 0x0246 },
-			"Death Mountain Crater Lower Nearby -> Darunias Chamber": { "index": 0x01C1 }
+			"Darunias Chamber -> Death Mountain Crater Lower Local":  { "index": "0x0246" },
+			"Death Mountain Crater Lower Nearby -> Darunias Chamber": { "index": "0x01C1" }
 		}
 	},
 	{
 		"Overworld": {
-			"Death Mountain Summit -> Death Mountain Crater Upper Local":  { "index": 0x0147 },
-			"Death Mountain Crater Upper Nearby -> Death Mountain Summit": { "index": 0x01BD }
+			"Death Mountain Summit -> Death Mountain Crater Upper Local":  { "index": "0x0147" },
+			"Death Mountain Crater Upper Nearby -> Death Mountain Summit": { "index": "0x01BD" }
 		}
 	},
 	{
 		"Overworld": {
-			"Zora River Behind Waterfall -> Zoras Domain": { "index": 0x0108 },
-			"Zoras Domain -> Zora River Behind Waterfall": { "index": 0x019D }
+			"Zora River Behind Waterfall -> Zoras Domain": { "index": "0x0108" },
+			"Zoras Domain -> Zora River Behind Waterfall": { "index": "0x019D" }
 		}
 	},
 	{
 		"Overworld": {
-			"Zoras Domain Behind King Zora -> Zoras Fountain": { "index": 0x0225 },
-			"Zoras Fountain -> Zoras Domain Behind King Zora": { "index": 0x01A1 }
+			"Zoras Domain Behind King Zora -> Zoras Fountain": { "index": "0x0225" },
+			"Zoras Fountain -> Zoras Domain Behind King Zora": { "index": "0x01A1" }
 		}
 	},
 	{
 		"OwlDrop":  {
-			"Lake Hylia Owl Flight -> Hyrule Field": { "index": 0x027E, "code_address": 0xAC9F26 },
-			"Death Mountain Summit Owl Flight -> Kakariko Impa Ledge": { "index": 0x0554, "code_address": 0xAC9EF2 }
+			"Lake Hylia Owl Flight -> Hyrule Field": { "index": "0x027E", "code_address": "0xAC9F26" },
+			"Death Mountain Summit Owl Flight -> Kakariko Impa Ledge": { "index": "0x0554", "code_address": "0xAC9EF2" }
 		}
-	},
+	}
 ]
