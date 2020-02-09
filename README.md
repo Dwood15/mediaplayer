@@ -4,7 +4,7 @@ A command line go-based media player with a simple media library.
 
 ## Motivation
 
-Frustrated with the absolutely garbage state of typical media player shuffle solutions?
+I have become frustrated with the absolutely garbage state of typical media player shuffle solutions.
 
 The ONLY goal of this player is to shuffle songs and provide a sane algorithm for when new ones are played.
 
