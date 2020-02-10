@@ -25,6 +25,7 @@ const (
 	TwoWayPortal NodeClass = "two_way_portal" // Doors, keyed entrances
 	SingleGive   NodeClass = "single_give"    // Chests, GS, freestanding items
 	ToggleGive   NodeClass = "toggle_give"    // Child -> Adult, visa versa
+	Hub          NodeClass = "hub"            // Hubs may contain items and exits
 
 	Give            Action = "give"              // A Give action indicates that the player will receive an item
 	Teleport        Action = "teleport"          // A Teleport Action says that the player should be teleported
@@ -42,8 +43,10 @@ type (
 		Requires []KeyName // Names of the Items that are required in order to visit this node.
 		OnVisit  struct {
 			Action    Action
-			Gives     []KeyName  //Gives is a list of Human-Readable items
-			Teleports []NodeName //A pair of from/two, only valid on TwoWay Portals
+			Gives     []KeyName //Gives is a list of Human-Readable items
+			Teleports []NodeName
+			SelfDestructs bool
+			//Whether or not this node self-destructs after visiting.
 		}
 
 		Exits []string
@@ -63,14 +66,14 @@ type (
 )
 
 //Validation helpers
-var AllNodeClasses = NodeClasses{OneWayPortal, TwoWayPortal, SingleGive, ToggleGive}
+var AllNodeClasses = NodeClasses{OneWayPortal, TwoWayPortal, SingleGive, ToggleGive, Hub}
 var AllActions = Actions{Give, Teleport, GiveAndTeleport}
 var AllKeyActions = KeyActions{OnUseDecrement, OnUseDoNothing, OnUseTeleport, ""}
 
 //Major helper funcs
 
 //CanVisit indicates whether or not we are able to access the next node and therefore claim a given item
-func (n *Node) CanVisit(keysHeld map[KeyName]Key) bool {
+func (n *Node) CanVisit(from NodeName, keysHeld map[KeyName]Key) bool {
 	if len(n.Requires) == 0 {
 		return true
 	}
