@@ -1,0 +1,44 @@
+[
+	{
+		"name":     "documentation",
+		"type":     "documentation",
+		"comment":  "this should be considered a flat list of all items, and should translate to a list of all items-keys.",
+		"comment2": ""
+	},
+	{
+		"name":       "kokiri_sword",
+		"type":       "melee",
+		"conditions": [ "child" ],
+		"comment":    "deku shield is sold at the kokiri shop for 40 rupees"
+	},
+	{
+		"name":    "bomb_bag",
+		"type":    "explosives",
+		"comment": "there should be 3 bomb bags in the pool"
+	},
+	{
+		"name":       "bombchus",
+		"type":       "explosives",
+		"conditions": [ "bomb_bag" ],
+		"comment":    "using/picking up more bombchus requires having the bomb bag"
+	},
+	{
+		"name":       "slingshot",
+		"type":       "ranged",
+		"conditions": [ "child" ]
+	},
+	{
+		"name":    "deku_nuts",
+		"comment": "deku nuts are hecking OP, but don't factor into computing completionability"
+	},
+	{
+		"name":       "deku_sticks",
+		"conditions": [ "child" ],
+		"comment":    "deku sticks can be a stand-in for swords"
+	},
+	{
+		"name":       "deku_shield",
+		"conditions": [ "child" ],
+		"comment":    "deku shield is sold at the kokiri shop for 40 rupees"
+	}
+]
