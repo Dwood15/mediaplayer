@@ -1,5 +1,12 @@
-{
-	"name": "links_house",
-	"class": "one_way_portal",
-	"exits": [ "links_house_exit" ],
-}
+[
+	{
+		"name":  "links_house",
+		"class": "one_way_portal",
+		"exits": [ "links_house_exit" ]
+	},
+	{
+		"name":  "links_house_portal",
+		"class": "two_way_portal",
+		"exits": [ "links_house_exit" ]
+	}
+]

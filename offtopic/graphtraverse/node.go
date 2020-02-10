@@ -36,18 +36,17 @@ const (
 )
 
 type (
-	OnVisit struct {
-		Action      Action
-		Gives       []KeyName //Gives is a list of Human-Readable items
-		TeleportsTo string
-	}
-
 	Node struct {
 		Name     NodeName  // Name is the human-readable identifier of the particular Node.
 		Class    NodeClass // Class is a descriptor of the node
-		Requires []KeyName // Names of the Items that are required in order to visit this node. ALL items in this list are required.
-		OnVisit  OnVisit
-		Exits    []string
+		Requires []KeyName // Names of the Items that are required in order to visit this node.
+		OnVisit  struct {
+			Action    Action
+			Gives     []KeyName  //Gives is a list of Human-Readable items
+			Teleports []NodeName //A pair of from/two, only valid on TwoWay Portals
+		}
+
+		Exits []string
 	}
 
 	// Key represents game state, or player save file state. Anything that can be used to indicate progression, really.
@@ -61,26 +60,22 @@ type (
 			Value      int       // Value: the current number of this key in inventory
 		}
 	}
-
-	//TODO: Move back to graph.go
-	//I have no idea what I'm doing here.. this isn't a graph, more like a pre-graph :V
-	NodeGraph map[NodeName]Node
-
-	PlayerSimulator struct {
-		Keys  map[KeyName]Key //Items which the player has in their inventory at this time.
-		Graph NodeGraph
-	}
 )
 
-//Implementation-detail stubs
-
+//Validation helpers
 var AllNodeClasses = NodeClasses{OneWayPortal, TwoWayPortal, SingleGive, ToggleGive}
 var AllActions = Actions{Give, Teleport, GiveAndTeleport}
 var AllKeyActions = KeyActions{OnUseDecrement, OnUseDoNothing, OnUseTeleport, ""}
 
 //Major helper funcs
+
+//CanVisit indicates whether or not we are able to access the next node and therefore claim a given item
 func (n *Node) CanVisit(keysHeld map[KeyName]Key) bool {
-	//idea: return all the items which are missing?
+	if len(n.Requires) == 0 {
+		return true
+	}
+
+	//idea: return items which are missing?
 
 	for _, req := range n.Requires {
 		k, ok := keysHeld[req]
@@ -156,7 +151,9 @@ func (k *Key) Validate() error {
 	return nil
 }
 
-func (oV *OnVisit) Validate() error {
+func (n *Node) validateOnVisit() error {
+	oV := n.OnVisit
+
 	if !AllActions.Contains(string(oV.Action)) {
 		return fmt.Errorf("OnVisit invalid action type: [%s]", oV.Action)
 	}
@@ -168,7 +165,7 @@ func (oV *OnVisit) Validate() error {
 	}
 
 	if oV.Action == Teleport || oV.Action == GiveAndTeleport {
-		if len(oV.TeleportsTo) == 0 {
+		if len(oV.Teleports) == 0 {
 			return fmt.Errorf("oV action: [%s] Teleports, but does not find any in Teleport list", oV.Action)
 		}
 	}
@@ -185,13 +182,26 @@ func (n *Node) Validate() error {
 		return fmt.Errorf("node class: [%s]", n.Class)
 	}
 
-	if n.Class == ToggleGive {
-		panic("not implemented yet!")
-	}
-
 	//TODO: More validation of nodes for sanity checking
 
-	return n.OnVisit.Validate()
+	switch n.Class {
+	case SingleGive:
+		if len(n.OnVisit.Gives) != 1 {
+			return fmt.Errorf("node [%s] doesn't have correct number of Gives for class: [%s]", n.Name, n.Class)
+		}
+	case ToggleGive:
+		panic("not implemented yet!")
+	case TwoWayPortal:
+		if len(n.OnVisit.Teleports) != 2 {
+			return fmt.Errorf("node [%s] doesn't have correct number of teleports for class of: [%s]", n.Name, n.Class)
+		}
+	case OneWayPortal:
+		if len(n.OnVisit.Teleports) != 1 {
+			return fmt.Errorf("node [%s] doesn't have correct number of teleports for class of: [%s]", n.Name, n.Class)
+		}
+	}
+
+	return n.validateOnVisit()
 }
 
 //Minor helper-funcs

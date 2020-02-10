@@ -7,7 +7,8 @@
 	{
 		"name": "miku_deku_tree",
 		"type": "area_unlock",
-		"comment": "dreaded miku check - sword, shield required, child",
+		"comment": "miku check - sword, shield required, child",
+		"comment2": "this is kinda awkward, because it only applies to getting to the deku tree, so we have to ", ,
 		"conditions": [ "kokiri_sword", "deku_shield" ]
 	}
 ]
